@@ -151,8 +151,11 @@ html,body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif
 
 <!-- Loading screen -->
 <div id="loading">
-  <div class="spinner"></div>
-  <div style="color:var(--muted);font-size:14px">Подключение к базе данных...</div>
+  <div style="text-align:center">
+    <div class="logo" style="font-size:32px;margin-bottom:20px">HUB<span>SALES</span></div>
+    <div class="spinner" style="margin:0 auto 16px"></div>
+    <div style="color:var(--muted);font-size:14px">Загрузка...</div>
+  </div>
 </div>
 
 <div id="app" style="display:none">
@@ -404,40 +407,43 @@ function fmtDate(iso) {
 }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ─── Инициализация и слушатели Firestore ──────────────────────
-async function init() {
-  try {
+// ─── Инициализация ───────────────────────────────────────────
+function init() {
+  // Показываем приложение сразу — данные подгрузятся через onSnapshot
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  // Слушатель товаров
+  db.collection('products').onSnapshot(function(snap) {
+    ST.products = snap.docs.map(function(d){ return d.data(); });
+    updateBadge();
+    if (curView === 'products') renderProducts();
+    if (curView === 'analytics') renderAnalytics();
+    setSyncStatus(true);
+
     // Первый запуск — добавляем демо-товары если база пустая
-    var snap = await db.collection('products').limit(1).get();
-    if (snap.empty) {
+    if (snap.empty && !window._demoAdded) {
+      window._demoAdded = true;
       var batch = db.batch();
       [
         { id:'PRD-CR001', name:'Крем для бритья Premium', quantity:15, cost:8.50, sale:calcSale(8.50) },
         { id:'PRD-PM001', name:'Помада матовая Strong', quantity:8, cost:12.00, sale:calcSale(12.00) },
         { id:'PRD-SH001', name:'Шампунь барбера 250ml', quantity:20, cost:6.00, sale:calcSale(6.00) },
-      ].forEach(function(p) { batch.set(db.collection('products').doc(p.id), p); });
-      await batch.commit();
+      ].forEach(function(p){ batch.set(db.collection('products').doc(p.id), p); });
+      batch.commit().catch(function(){});
     }
-  } catch(e) { console.warn('Init:', e); }
+  }, function(err) {
+    console.warn('Products error:', err);
+    setSyncStatus(false);
+  });
 
-  // Слушатель товаров — обновляет UI при любом изменении
-  db.collection('products').onSnapshot(function(snap) {
-    ST.products = snap.docs.map(function(d) { return d.data(); });
-    updateBadge();
-    if (curView === 'products') renderProducts();
-    if (curView === 'analytics') renderAnalytics();
-    setSyncStatus(true);
-  }, function() { setSyncStatus(false); });
-
-  // Слушатель продаж — обновляет историю при любом изменении
+  // Слушатель продаж
   db.collection('sales').orderBy('ts', 'desc').onSnapshot(function(snap) {
-    ST.sales = snap.docs.map(function(d) { return d.data(); });
+    ST.sales = snap.docs.map(function(d){ return d.data(); });
     if (curView === 'analytics') renderAnalytics();
-  }, function() {});
-
-  // Показываем приложение
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
+  }, function(err) {
+    console.warn('Sales error:', err);
+  });
 }
 
 function setSyncStatus(ok) {
