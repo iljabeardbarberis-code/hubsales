@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>HubSales</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0A0A0A;--s1:#141414;--s2:#1E1E1E;--s3:#282828;
+  --border:#2E2E2E;--gold:#C9A84C;--gold-l:#E8C46A;
+  --text:#F0EBE1;--muted:#888;--green:#3D9E6A;--red:#C94040;--warn:#E08C30;
+  --r:12px;--nav:64px;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;height:100%;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto}
+
+/* Loading screen */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Header */
+.hdr{background:var(--s1);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.logo{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;letter-spacing:1px;color:var(--gold)}
+.logo span{color:var(--text)}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+
+/* Content */
+#content{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+
+/* Views */
+.view{display:none;padding:16px;animation:fadeUp .25s ease}
+.view.active{display:block}
+
+/* Bottom nav */
+.bnav{background:var(--s1);border-top:1px solid var(--border);display:flex;height:var(--nav);flex-shrink:0}
+.nbtn{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted);font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;position:relative;transition:color .2s}
+.nbtn.active{color:var(--gold)}
+.nbtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2}
+.nbadge{position:absolute;top:8px;right:calc(50% - 20px);background:var(--red);color:#fff;border-radius:8px;font-size:9px;padding:1px 5px;font-weight:700;display:none}
+
+/* Buttons */
+.btn{border:none;border-radius:10px;padding:14px 20px;font-family:'Barlow',sans-serif;font-size:15px;font-weight:600;cursor:pointer;width:100%;display:block;text-align:center;transition:opacity .15s}
+.btn:active{opacity:.8}
+.btn-gold{background:var(--gold);color:#000;letter-spacing:.5px}
+.btn-green{background:var(--green);color:#fff}
+.btn-ghost{background:var(--s3);color:var(--muted);border:1px solid var(--border)}
+.btn-sm{padding:8px 14px;font-size:13px;width:auto;display:inline-block;border-radius:8px}
+
+/* Form */
+.field{margin-bottom:14px}
+.field label{display:block;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.field input{width:100%;background:var(--s3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:16px;padding:12px 14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.field input:focus{border-color:var(--gold)}
+
+/* Product item */
+.p-item{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.p-item.low{border-color:var(--warn)}
+.p-item.out{border-color:var(--red)}
+.p-name{font-weight:600;font-size:15px;margin-bottom:3px}
+.p-id{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+.p-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.p-chip{background:var(--s3);border-radius:8px;padding:8px 12px}
+.p-chip.gold{border-left:2px solid var(--gold)}
+.chip-lbl{font-size:10px;color:var(--muted);margin-bottom:3px;letter-spacing:1px;text-transform:uppercase}
+.chip-lbl.g{color:var(--gold)}
+.chip-val{font-family:'IBM Plex Mono',monospace;font-size:14px}
+.chip-val.g{color:var(--gold)}
+.p-acts{display:flex;gap:8px}
+.p-act{flex:1;background:var(--s3);border:none;color:var(--text);border-radius:8px;padding:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif}
+.p-act.del{color:var(--red);flex:0 0 auto;padding:8px 14px}
+
+/* Stats */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.scard{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.slbl{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.sval{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ssub{font-size:11px;color:var(--muted);margin-top:3px}
+
+/* Sale item */
+.sale-item{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+
+/* Alert */
+.alert{border-radius:10px;padding:12px 16px;margin-bottom:10px;font-size:13px;font-weight:600}
+.alert-warn{background:rgba(224,140,48,.1);border:1px solid var(--warn);color:var(--warn)}
+.alert-red{background:rgba(201,64,64,.1);border:1px solid var(--red);color:var(--red)}
+
+/* Scanner */
+#scanner-wrap{position:relative;border-radius:var(--r);overflow:hidden;background:#000;display:none}
+#scanner-wrap.on{display:block}
+#svid{width:100%;display:block;max-height:350px;object-fit:cover}
+#scvs{display:none}
+.scan-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.scan-fr{width:60%;aspect-ratio:1;position:relative}
+.sc{position:absolute;width:24px;height:24px}
+.sc-tl{top:0;left:0;border-top:3px solid var(--gold);border-left:3px solid var(--gold)}
+.sc-tr{top:0;right:0;border-top:3px solid var(--gold);border-right:3px solid var(--gold)}
+.sc-bl{bottom:0;left:0;border-bottom:3px solid var(--gold);border-left:3px solid var(--gold)}
+.sc-br{bottom:0;right:0;border-bottom:3px solid var(--gold);border-right:3px solid var(--gold)}
+.scan-line{position:absolute;left:0;right:0;height:2px;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:scanline 2s ease-in-out infinite}
+.scan-hint{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.75);padding:12px;text-align:center;color:var(--gold);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;animation:blink 1.5s infinite}
+
+/* Result card */
+.res-card{background:var(--s2);border:2px solid var(--gold);border-radius:var(--r);padding:16px;margin-bottom:10px}
+.res-name{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:4px}
+.price-box{background:var(--s3);border-radius:10px;padding:14px;margin:12px 0}
+.prow{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
+.plbl{color:var(--muted);font-size:13px}
+.pval{font-family:'IBM Plex Mono',monospace;font-size:15px}
+.pvtotal{color:var(--gold);font-size:26px;font-weight:600}
+.divider{height:1px;background:var(--border);margin:4px 0}
+
+/* Success */
+.success{text-align:center;padding:60px 20px;animation:popIn .3s ease}
+.suc-icon{width:80px;height:80px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+
+/* Empty state */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+
+/* Modals */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:flex-end}
+.modal.on{display:flex}
+.modal.center{align-items:center;padding:20px}
+.msheet{background:var(--s2);border-radius:16px 16px 0 0;border:1px solid var(--border);border-bottom:none;padding:24px 20px 36px;width:100%;max-height:90dvh;overflow-y:auto}
+.msheet.ctr{border-radius:16px;border:1px solid var(--border);border-bottom:1px solid var(--border);max-width:340px;margin:0 auto;text-align:center}
+.mtitle{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;margin-bottom:18px}
+
+#qr-box{background:#fff;padding:16px;border-radius:12px;display:inline-block;margin-bottom:12px}
+
+/* Toast */
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-10px);padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;z-index:500;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s,transform .2s}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Sync indicator */
+#sync{position:fixed;top:12px;right:12px;width:8px;height:8px;border-radius:50%;background:var(--green);z-index:400;transition:background .3s}
+#sync.off{background:var(--red)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes scanline{0%,100%{top:10%}50%{top:85%}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div style="color:var(--muted);font-size:14px">Подключение к базе данных...</div>
+</div>
+
+<div id="app" style="display:none">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div>
+      <div class="logo">HUB<span>SALES</span></div>
+      <div class="logo-sub">Учёт продаж</div>
+    </div>
+    <button id="hdr-add" class="btn btn-gold btn-sm" onclick="openAddProduct()" style="display:none">+ Товар</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- ═══ СКАНЕР ═══════════════════════════════════════════════ -->
+    <div id="view-scan" class="view active">
+      <div id="scan-start" style="text-align:center;padding:48px 20px">
+        <div style="width:88px;height:88px;border:2px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8">
+            <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/>
+            <rect x="7" y="7" width="10" height="10" rx="1.5"/><rect x="9.5" y="9.5" width="5" height="5" rx=".5" fill="var(--gold)" stroke="none"/>
+          </svg>
+        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;letter-spacing:1px;margin-bottom:8px">СКАНИРОВАТЬ ТОВАР</div>
+        <div style="color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:32px">Наведите камеру на QR-код,<br>наклеенный на товар</div>
+        <button class="btn btn-gold" onclick="startScan()" style="max-width:300px;margin:0 auto">Открыть камеру</button>
+        <div style="margin-top:12px">
+          <button class="btn btn-ghost" onclick="manualInput()" style="max-width:300px;margin:0 auto;font-size:13px;padding:10px">Ввести код вручную</button>
+        </div>
+      </div>
+
+      <div id="scanner-wrap">
+        <video id="svid" autoplay muted playsinline></video>
+        <canvas id="scvs"></canvas>
+        <div class="scan-ov">
+          <div class="scan-fr">
+            <div class="sc sc-tl"></div><div class="sc sc-tr"></div>
+            <div class="sc sc-bl"></div><div class="sc sc-br"></div>
+            <div class="scan-line"></div>
+          </div>
+        </div>
+        <div class="scan-hint">сканирование qr-кода...</div>
+      </div>
+      <div id="scan-btns" style="display:none;text-align:center;margin-top:12px">
+        <button class="btn btn-ghost" onclick="stopScan()">Отмена</button>
+      </div>
+
+      <div id="scan-result" style="display:none;animation:fadeUp .25s ease">
+        <div class="res-card">
+          <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Найден товар</div>
+          <div class="res-name" id="r-name"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:12px" id="r-id"></div>
+          <div class="price-box">
+            <div class="prow"><span class="plbl">Цена закупки:</span><span class="pval" id="r-cost"></span></div>
+            <div class="prow"><span class="plbl">НДС 21%:</span><span class="pval" id="r-vat"></span></div>
+            <div class="prow"><span class="plbl">Наценка 100%:</span><span class="pval" id="r-markup"></span></div>
+            <div class="divider"></div>
+            <div class="prow" style="margin-top:4px">
+              <span style="color:var(--gold);font-weight:700;font-size:14px">ЦЕНА ПРОДАЖИ:</span>
+              <span class="pvtotal" id="r-sale"></span>
+            </div>
+          </div>
+          <div style="color:var(--muted);font-size:12px;text-align:center;margin-bottom:16px">
+            На складе: <strong id="r-qty" style="font-family:'IBM Plex Mono',monospace"></strong>
+          </div>
+          <button class="btn btn-green" onclick="confirmSale()" style="margin-bottom:10px">
+            ✓ &nbsp;Продать — <span id="r-sale-btn" style="font-family:'IBM Plex Mono',monospace"></span>
+          </button>
+          <button class="btn btn-ghost" onclick="cancelSale()">Отмена</button>
+        </div>
+      </div>
+
+      <div id="scan-success" style="display:none">
+        <div class="success">
+          <div class="suc-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:800;color:var(--green);margin-bottom:8px">ПРОДАНО!</div>
+          <div style="color:var(--muted);font-size:15px" id="suc-info"></div>
+          <div style="margin-top:24px">
+            <button class="btn btn-ghost" onclick="showScanState('start')" style="max-width:220px;margin:0 auto">Следующий товар</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ТОВАРЫ ════════════════════════════════════════════════ -->
+    <div id="view-products" class="view">
+      <div id="products-list"></div>
+    </div>
+
+    <!-- ═══ АНАЛИТИКА ════════════════════════════════════════════ -->
+    <div id="view-analytics" class="view">
+      <div class="stat-grid" id="stats-grid"></div>
+      <div id="alerts-area"></div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px">История продаж</div>
+      <div id="sales-list"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <button class="nbtn active" id="nav-scan" onclick="switchView('scan')">
+      <svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+      Сканер
+    </button>
+    <button class="nbtn" id="nav-products" onclick="switchView('products')">
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      Товары
+      <span class="nbadge" id="out-badge"></span>
+    </button>
+    <button class="nbtn" id="nav-analytics" onclick="switchView('analytics')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+      Аналитика
+    </button>
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<div class="modal" id="modal-product" onclick="mdClose(event,'modal-product')">
+  <div class="msheet">
+    <div class="mtitle" id="mp-title">НОВЫЙ ТОВАР</div>
+    <div class="field"><label>Название товара</label>
+      <input id="f-name" type="text" placeholder="Напр: Крем для бритья" autocomplete="off">
+    </div>
+    <div class="field"><label>Количество (шт.)</label>
+      <input id="f-qty" type="number" placeholder="0" inputmode="numeric" min="0">
+    </div>
+    <div class="field"><label>Цена закупки (€)</label>
+      <input id="f-cost" type="number" placeholder="0.00" inputmode="decimal" step="0.01" min="0.01" oninput="previewPrice()">
+    </div>
+    <div id="price-preview" style="display:none;background:var(--s3);border-radius:8px;padding:12px 14px;margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="color:var(--muted);font-size:13px">НДС 21%:</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13px" id="prev-vat"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="color:var(--muted);font-size:13px">Наценка 100%:</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13px" id="prev-markup"></span>
+      </div>
+      <div style="height:1px;background:var(--border);margin:6px 0"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:var(--gold);font-size:13px;font-weight:700">Цена продажи:</span>
+        <span style="color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600" id="prev-sale"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <span style="color:var(--muted);font-size:11px">Прибыль:</span>
+        <span style="color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:13px" id="prev-profit"></span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-product')" style="flex:1">Отмена</button>
+      <button class="btn btn-gold" onclick="saveProduct()" style="flex:2" id="mp-save-btn">ДОБАВИТЬ</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal center" id="modal-qr" onclick="mdClose(event,'modal-qr')">
+  <div class="msheet ctr">
+    <div id="qr-box"><div id="qr-render" style="width:200px;height:200px"></div></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;margin-bottom:4px" id="qr-id"></div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:6px" id="qr-name"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--gold);margin-bottom:18px" id="qr-price"></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Сделайте скриншот и распечатайте</div>
+    <button class="btn btn-ghost" onclick="closeModal('modal-qr')">Закрыть</button>
+  </div>
+</div>
+
+<div class="modal center" id="modal-manual" onclick="mdClose(event,'modal-manual')">
+  <div class="msheet ctr">
+    <div class="mtitle">ВВЕСТИ КОД</div>
+    <div class="field" style="text-align:left"><label>ID товара</label>
+      <input id="f-manual" type="text" placeholder="Напр: PRD-CR001" autocomplete="off" autocapitalize="characters">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-manual')" style="flex:1">Отмена</button>
+      <button class="btn btn-gold" onclick="lookupManual()" style="flex:2">НАЙТИ</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="sync" title="Синхронизация"></div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     FIREBASE SDK
+══════════════════════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<!-- QR Scanner -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" crossorigin="anonymous"></script>
+<!-- QR Generator -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  ВСТАВЬТЕ ВАШИ ДАННЫЕ ИЗ FIREBASE CONSOLE (Шаг 3 инструкции)
+// ══════════════════════════════════════════════════════════════
+var firebaseConfig = {
+  apiKey:            "AIzaSyC8_WY63Ln-1ao28a7FE-Dw1wIHgiWeCdc",
+  authDomain:        "hubsales-c377b.firebaseapp.com",
+  projectId:         "hubsales-c377b",
+  storageBucket:     "hubsales-c377b.firebasestorage.app",
+  messagingSenderId: "63780907493",
+  appId:             "1:63780907493:web:381c65efecf74d80bfe70c"
+};
+// ══════════════════════════════════════════════════════════════
+
+// ─── Проверка конфига ─────────────────────────────────────────
+if (firebaseConfig.apiKey === 'ВСТАВЬТЕ_СЮДА') {
+  document.getElementById('loading').innerHTML =
+    '<div style="text-align:center;padding:32px;color:var(--text);max-width:340px">' +
+    '<div style="font-size:56px;margin-bottom:16px">⚙️</div>' +
+    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:26px;font-weight:800;margin-bottom:10px">Нужна настройка Firebase</div>' +
+    '<div style="color:var(--muted);font-size:14px;line-height:1.6">Откройте файл index.html и вставьте ваш конфиг из Firebase Console в переменную <code style="color:var(--gold)">firebaseConfig</code><br><br>Читайте README.md</div>' +
+    '</div>';
+  throw new Error('Firebase not configured');
+}
+
+// ─── Инициализация Firebase ────────────────────────────────────
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+// Офлайн-кеш (данные доступны без интернета)
+db.enablePersistence({ synchronizeTabs: true }).catch(function(){});
+
+// ─── Состояние ─────────────────────────────────────────────────
+var ST = { products: [], sales: [] };
+var curView = 'scan';
+var editId = null;
+var curProduct = null;
+var camStream = null, rafId = null, scanOn = false;
+
+// ─── Утилиты ───────────────────────────────────────────────────
+function newId() { return 'PRD-' + Math.random().toString(36).slice(2,10).toUpperCase(); }
+function saleId() { return 'SL-' + Date.now().toString(36).toUpperCase(); }
+function calcSale(cost) { return Math.round(cost * 2.42 * 100) / 100; }
+function fmt(n) { return (Math.round(n * 100) / 100).toFixed(2) + ' \u20AC'; }
+function fmtDate(iso) {
+  var d = new Date(iso);
+  return d.getDate().toString().padStart(2,'0') + '.' +
+    (d.getMonth()+1).toString().padStart(2,'0') + '  ' +
+    d.getHours().toString().padStart(2,'0') + ':' +
+    d.getMinutes().toString().padStart(2,'0');
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ─── Инициализация и слушатели Firestore ──────────────────────
+async function init() {
+  try {
+    // Первый запуск — добавляем демо-товары если база пустая
+    var snap = await db.collection('products').limit(1).get();
+    if (snap.empty) {
+      var batch = db.batch();
+      [
+        { id:'PRD-CR001', name:'Крем для бритья Premium', quantity:15, cost:8.50, sale:calcSale(8.50) },
+        { id:'PRD-PM001', name:'Помада матовая Strong', quantity:8, cost:12.00, sale:calcSale(12.00) },
+        { id:'PRD-SH001', name:'Шампунь барбера 250ml', quantity:20, cost:6.00, sale:calcSale(6.00) },
+      ].forEach(function(p) { batch.set(db.collection('products').doc(p.id), p); });
+      await batch.commit();
+    }
+  } catch(e) { console.warn('Init:', e); }
+
+  // Слушатель товаров — обновляет UI при любом изменении
+  db.collection('products').onSnapshot(function(snap) {
+    ST.products = snap.docs.map(function(d) { return d.data(); });
+    updateBadge();
+    if (curView === 'products') renderProducts();
+    if (curView === 'analytics') renderAnalytics();
+    setSyncStatus(true);
+  }, function() { setSyncStatus(false); });
+
+  // Слушатель продаж — обновляет историю при любом изменении
+  db.collection('sales').orderBy('ts', 'desc').onSnapshot(function(snap) {
+    ST.sales = snap.docs.map(function(d) { return d.data(); });
+    if (curView === 'analytics') renderAnalytics();
+  }, function() {});
+
+  // Показываем приложение
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+}
+
+function setSyncStatus(ok) {
+  document.getElementById('sync').className = ok ? '' : 'off';
+}
+
+// ─── Навигация ─────────────────────────────────────────────────
+function switchView(v) {
+  stopScan();
+  document.querySelectorAll('.view').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelectorAll('.nbtn').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('nav-'+v).classList.add('active');
+  document.getElementById('hdr-add').style.display = v === 'products' ? 'inline-block' : 'none';
+  curView = v;
+  if (v === 'products') renderProducts();
+  if (v === 'analytics') renderAnalytics();
+}
+
+// ─── Модалки ───────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('on'); }
+function closeModal(id) { document.getElementById(id).classList.remove('on'); }
+function mdClose(e, id) { if (e.target === e.currentTarget) closeModal(id); }
+
+// ─── Toast ─────────────────────────────────────────────────────
+var toastTimer;
+function toast(msg, ok) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = (ok === false) ? 'var(--red)' : 'var(--green)';
+  t.style.color = '#fff';
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 2600);
+}
+
+// ─── Сканер ────────────────────────────────────────────────────
+function showScanState(s) {
+  document.getElementById('scan-start').style.display   = s==='start'   ? 'block' : 'none';
+  var sw = document.getElementById('scanner-wrap');
+  if (s==='scan') sw.classList.add('on'); else sw.classList.remove('on');
+  document.getElementById('scan-btns').style.display    = s==='scan'    ? 'block' : 'none';
+  document.getElementById('scan-result').style.display  = s==='result'  ? 'block' : 'none';
+  document.getElementById('scan-success').style.display = s==='success' ? 'block' : 'none';
+}
+
+function startScan() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    toast('Камера недоступна. Используйте Chrome.', false); return;
+  }
+  if (!window.jsQR) { toast('Нет соединения с интернетом', false); return; }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal:'environment' }, width:{ideal:1280} } })
+    .then(function(stream) {
+      camStream = stream;
+      var v = document.getElementById('svid');
+      v.srcObject = stream;
+      v.play().catch(function(){});
+      scanOn = true;
+      showScanState('scan');
+      rafId = requestAnimationFrame(scanFrame);
+    })
+    .catch(function() { toast('Нет доступа к камере. Разрешите в настройках.', false); });
+}
+
+function stopScan() {
+  scanOn = false;
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  if (camStream) { camStream.getTracks().forEach(function(t){ t.stop(); }); camStream = null; }
+  document.getElementById('svid').srcObject = null;
+  if (curView === 'scan') showScanState('start');
+}
+
+function scanFrame() {
+  if (!scanOn) return;
+  var v = document.getElementById('svid'), c = document.getElementById('scvs');
+  if (v.readyState === v.HAVE_ENOUGH_DATA && window.jsQR) {
+    c.width = v.videoWidth; c.height = v.videoHeight;
+    var ctx = c.getContext('2d');
+    ctx.drawImage(v, 0, 0);
+    var d = ctx.getImageData(0, 0, c.width, c.height);
+    var code = window.jsQR(d.data, d.width, d.height, { inversionAttempts:'dontInvert' });
+    if (code && code.data) {
+      var p = ST.products.find(function(x){ return x.id === code.data; });
+      if (p) { stopScan(); showResult(p); return; }
+    }
+  }
+  rafId = requestAnimationFrame(scanFrame);
+}
+
+function manualInput() {
+  document.getElementById('f-manual').value = '';
+  openModal('modal-manual');
+  setTimeout(function(){ document.getElementById('f-manual').focus(); }, 150);
+}
+function lookupManual() {
+  var code = document.getElementById('f-manual').value.trim().toUpperCase();
+  var p = ST.products.find(function(x){ return x.id === code; });
+  if (p) { closeModal('modal-manual'); showResult(p); }
+  else toast('Товар «' + code + '» не найден', false);
+}
+
+// ─── Продажа ───────────────────────────────────────────────────
+function showResult(p) {
+  curProduct = p;
+  document.getElementById('r-name').textContent = p.name;
+  document.getElementById('r-id').textContent = p.id;
+  document.getElementById('r-cost').textContent = fmt(p.cost);
+  document.getElementById('r-vat').textContent = fmt(p.cost * 0.21);
+  document.getElementById('r-markup').textContent = fmt(p.cost * 1.21);
+  document.getElementById('r-sale').textContent = fmt(p.sale);
+  document.getElementById('r-sale-btn').textContent = fmt(p.sale);
+  var qEl = document.getElementById('r-qty');
+  qEl.textContent = p.quantity + ' шт.';
+  qEl.style.color = p.quantity===0 ? 'var(--red)' : p.quantity<=3 ? 'var(--warn)' : 'var(--green)';
+  showScanState('result');
+}
+
+function cancelSale() { curProduct = null; showScanState('start'); }
+
+async function confirmSale() {
+  if (!curProduct) return;
+  var product = ST.products.find(function(p){ return p.id === curProduct.id; });
+  if (!product || product.quantity <= 0) {
+    toast('Товар закончился на складе!', false);
+    cancelSale(); return;
+  }
+
+  var sale = {
+    id: saleId(),
+    productId: product.id,
+    name: product.name,
+    cost: product.cost,
+    sale: product.sale,
+    profit: Math.round((product.sale - product.cost) * 100) / 100,
+    ts: new Date().toISOString()
+  };
+
+  try {
+    // Атомарная операция: уменьшить остаток + записать продажу
+    var batch = db.batch();
+    batch.update(db.collection('products').doc(product.id), { quantity: product.quantity - 1 });
+    batch.set(db.collection('sales').doc(sale.id), sale);
+    await batch.commit();
+
+    document.getElementById('suc-info').textContent = product.name + ' — ' + fmt(product.sale);
+    showScanState('success');
+    curProduct = null;
+    updateBadge();
+  } catch(e) {
+    toast('Ошибка записи. Проверьте интернет.', false);
+  }
+}
+
+// ─── Товары ────────────────────────────────────────────────────
+function openAddProduct() {
+  editId = null;
+  document.getElementById('mp-title').textContent = 'НОВЫЙ ТОВАР';
+  document.getElementById('mp-save-btn').textContent = 'ДОБАВИТЬ';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-qty').value = '';
+  document.getElementById('f-cost').value = '';
+  document.getElementById('price-preview').style.display = 'none';
+  openModal('modal-product');
+  setTimeout(function(){ document.getElementById('f-name').focus(); }, 200);
+}
+
+function openEditProduct(id) {
+  var p = ST.products.find(function(x){ return x.id === id; });
+  if (!p) return;
+  editId = id;
+  document.getElementById('mp-title').textContent = 'РЕДАКТИРОВАТЬ';
+  document.getElementById('mp-save-btn').textContent = 'СОХРАНИТЬ';
+  document.getElementById('f-name').value = p.name;
+  document.getElementById('f-qty').value = p.quantity;
+  document.getElementById('f-cost').value = p.cost;
+  previewPrice();
+  openModal('modal-product');
+}
+
+function previewPrice() {
+  var cost = parseFloat(document.getElementById('f-cost').value);
+  var pp = document.getElementById('price-preview');
+  if (isNaN(cost) || cost <= 0) { pp.style.display = 'none'; return; }
+  var sale = calcSale(cost);
+  document.getElementById('prev-vat').textContent = fmt(cost * 0.21);
+  document.getElementById('prev-markup').textContent = fmt(cost * 1.21);
+  document.getElementById('prev-sale').textContent = fmt(sale);
+  document.getElementById('prev-profit').textContent = '+' + fmt(sale - cost);
+  pp.style.display = 'block';
+}
+
+async function saveProduct() {
+  var name = document.getElementById('f-name').value.trim();
+  var qty = parseInt(document.getElementById('f-qty').value);
+  var cost = parseFloat(document.getElementById('f-cost').value);
+  if (!name) { toast('Введите название товара', false); return; }
+  if (isNaN(qty) || qty < 0) { toast('Введите корректное количество', false); return; }
+  if (isNaN(cost) || cost <= 0) { toast('Введите корректную цену закупки', false); return; }
+
+  var product = { id: editId || newId(), name: name, quantity: qty, cost: cost, sale: calcSale(cost) };
+  try {
+    await db.collection('products').doc(product.id).set(product);
+    closeModal('modal-product');
+    toast(editId ? 'Товар обновлён' : 'Товар добавлен');
+  } catch(e) { toast('Ошибка сохранения', false); }
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Удалить товар?\n(История продаж сохранится)')) return;
+  try {
+    await db.collection('products').doc(id).delete();
+    toast('Товар удалён');
+  } catch(e) { toast('Ошибка удаления', false); }
+}
+
+function showQR(id) {
+  var p = ST.products.find(function(x){ return x.id === id; });
+  if (!p) return;
+  document.getElementById('qr-id').textContent = p.id;
+  document.getElementById('qr-name').textContent = p.name;
+  document.getElementById('qr-price').textContent = fmt(p.sale);
+  var container = document.getElementById('qr-render');
+  container.innerHTML = '';
+  if (window.QRCode) {
+    try {
+      new QRCode(container, { text:p.id, width:200, height:200, colorDark:'#000', colorLight:'#fff', correctLevel:QRCode.CorrectLevel.M });
+    } catch(e) {
+      container.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(p.id)+'&margin=2" width="200" height="200">';
+    }
+  } else {
+    container.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(p.id)+'&margin=2" width="200" height="200">';
+  }
+  openModal('modal-qr');
+}
+
+// ─── Рендер ────────────────────────────────────────────────────
+function renderProducts() {
+  var el = document.getElementById('products-list');
+  if (ST.products.length === 0) {
+    el.innerHTML = '<div class="empty"><div style="font-size:3em;margin-bottom:12px">&#128230;</div><div>Нет товаров</div><div style="font-size:13px;margin-top:6px">Нажмите «+ Товар» чтобы добавить</div></div>';
+    return;
+  }
+  el.innerHTML = ST.products.map(function(p) {
+    var cls = p.quantity===0 ? 'out' : p.quantity<=3 ? 'low' : '';
+    var sc = p.quantity===0 ? 'var(--red)' : p.quantity<=3 ? 'var(--warn)' : 'var(--green)';
+    var st = p.quantity===0 ? '&#9888; НЕТ' : p.quantity+' шт.';
+    return '<div class="p-item '+cls+'">'
+      +'<div class="p-hdr"><div><div class="p-name">'+esc(p.name)+'</div><div class="p-id">'+esc(p.id)+'</div></div>'
+      +'<div style="font-size:12px;font-weight:700;color:'+sc+'">'+st+'</div></div>'
+      +'<div class="p-grid"><div class="p-chip"><div class="chip-lbl">ЗАКУПКА</div><div class="chip-val">'+fmt(p.cost)+'</div></div>'
+      +'<div class="p-chip gold"><div class="chip-lbl g">ПРОДАЖА</div><div class="chip-val g">'+fmt(p.sale)+'</div></div></div>'
+      +'<div class="p-acts">'
+      +'<button class="p-act" onclick="showQR(\''+p.id+'\')">QR-код</button>'
+      +'<button class="p-act" onclick="openEditProduct(\''+p.id+'\')">Редактировать</button>'
+      +'<button class="p-act del" onclick="deleteProduct(\''+p.id+'\')">&times;</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function renderAnalytics() {
+  var s = ST.sales, p = ST.products;
+  var cnt = s.length;
+  var rev = s.reduce(function(a,x){ return a+x.sale; }, 0);
+  var prof = s.reduce(function(a,x){ return a+x.profit; }, 0);
+  var inv = p.reduce(function(a,x){ return a+x.cost*x.quantity; }, 0);
+  var outArr = p.filter(function(x){ return x.quantity===0; });
+  var lowArr = p.filter(function(x){ return x.quantity>0 && x.quantity<=3; });
+
+  document.getElementById('stats-grid').innerHTML =
+    '<div class="scard"><div class="slbl">Продаж</div><div class="sval" style="color:var(--gold)">'+cnt+'</div><div class="ssub">транзакций</div></div>'
+    +'<div class="scard"><div class="slbl">Выручка</div><div class="sval">'+fmt(rev)+'</div><div class="ssub">от продаж</div></div>'
+    +'<div class="scard"><div class="slbl">Прибыль</div><div class="sval" style="color:var(--green)">'+fmt(prof)+'</div><div class="ssub">чистая</div></div>'
+    +'<div class="scard"><div class="slbl">Склад</div><div class="sval" style="color:var(--muted)">'+fmt(inv)+'</div><div class="ssub">закупочная стоим.</div></div>';
+
+  var alerts = '';
+  if (outArr.length>0) alerts += '<div class="alert alert-red">Закончилось: '+outArr.map(function(x){ return esc(x.name); }).join(', ')+'</div>';
+  if (lowArr.length>0) alerts += '<div class="alert alert-warn">Заканчивается (&le;3 шт.): '+lowArr.map(function(x){ return esc(x.name); }).join(', ')+'</div>';
+  document.getElementById('alerts-area').innerHTML = alerts;
+
+  if (s.length===0) {
+    document.getElementById('sales-list').innerHTML = '<div class="empty"><div style="font-size:2.5em;margin-bottom:10px">&#128202;</div><div>Продаж ещё нет</div></div>';
+    return;
+  }
+  document.getElementById('sales-list').innerHTML = s.map(function(x) {
+    return '<div class="sale-item"><div>'
+      +'<div style="font-weight:600;font-size:14px;margin-bottom:3px">'+esc(x.name)+'</div>'
+      +'<div style="color:var(--muted);font-size:12px">'+fmtDate(x.ts)+'</div></div>'
+      +'<div style="text-align:right">'
+      +'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:15px;color:var(--gold)">'+fmt(x.sale)+'</div>'
+      +'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:12px;color:var(--green)">+'+fmt(x.profit)+'</div>'
+      +'</div></div>';
+  }).join('');
+}
+
+function updateBadge() {
+  var n = ST.products.filter(function(p){ return p.quantity===0; }).length;
+  var b = document.getElementById('out-badge');
+  b.style.display = n>0 ? 'block' : 'none';
+  b.textContent = n;
+}
+
+// Предотвратить двойной тап-зум
+var lastTouch = 0;
+document.addEventListener('touchend', function(e) {
+  var now = Date.now();
+  if (now - lastTouch < 300) e.preventDefault();
+  lastTouch = now;
+}, { passive: false });
+
+// Старт
+init();
+</script>
+</body>
+</html>
