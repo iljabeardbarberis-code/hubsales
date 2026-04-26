@@ -318,9 +318,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif
     <div id="qr-box"><div id="qr-render" style="width:200px;height:200px"></div></div>
     <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;margin-bottom:4px" id="qr-id"></div>
     <div style="font-size:14px;color:var(--muted);margin-bottom:6px" id="qr-name"></div>
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--gold);margin-bottom:18px" id="qr-price"></div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Сделайте скриншот и распечатайте</div>
-    <button class="btn btn-ghost" onclick="closeModal('modal-qr')">Закрыть</button>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--gold);margin-bottom:16px" id="qr-price"></div>
+    <button class="btn btn-gold" onclick="shareQR()" style="margin-bottom:10px">Отправить / Поделиться</button>
+    <button class="btn btn-ghost" onclick="downloadQR()" style="margin-bottom:10px">Скачать PNG</button>
+    <button class="btn" onclick="closeModal('modal-qr')" style="background:none;color:var(--muted);padding:10px">Закрыть</button>
   </div>
 </div>
 
@@ -388,6 +389,7 @@ var ST = { products: [], sales: [] };
 var curView = 'scan';
 var editId = null;
 var curProduct = null;
+var curQRProduct = null;
 var camStream = null, rafId = null, scanOn = false;
 
 // ─── Утилиты ───────────────────────────────────────────────────
@@ -655,6 +657,7 @@ async function deleteProduct(id) {
 
 function showQR(id) {
   var p = ST.products.find(function(x){ return x.id === id; });
+  curQRProduct = p;
   if (!p) return;
   document.getElementById('qr-id').textContent = p.id;
   document.getElementById('qr-name').textContent = p.name;
@@ -732,6 +735,54 @@ function renderAnalytics() {
   }).join('');
 }
 
+
+// ─── QR Поделиться / Скачать ──────────────────────────────────
+function getQRCanvas() {
+  var canvas = document.querySelector("#qr-render canvas");
+  if (canvas) return canvas;
+  // Если qrcodejs создал img — рисуем его на canvas
+  var img = document.querySelector("#qr-render img");
+  if (img) {
+    var c = document.createElement("canvas");
+    c.width = 200; c.height = 200;
+    c.getContext("2d").drawImage(img, 0, 0, 200, 200);
+    return c;
+  }
+  return null;
+}
+
+function shareQR() {
+  if (!curQRProduct) return;
+  var canvas = getQRCanvas();
+  if (!canvas) { toast("QR ещё не готов", false); return; }
+  canvas.toBlob(function(blob) {
+    var name = curQRProduct.id + ".png";
+    var file = new File([blob], name, { type: "image/png" });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({
+        files: [file],
+        title: curQRProduct.name,
+        text: curQRProduct.name + " — " + fmt(curQRProduct.sale)
+      }).catch(function(){});
+    } else {
+      // Fallback — скачать
+      downloadQR();
+    }
+  }, "image/png");
+}
+
+function downloadQR() {
+  if (!curQRProduct) return;
+  var canvas = getQRCanvas();
+  if (!canvas) { toast("QR ещё не готов", false); return; }
+  var a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = curQRProduct.id + ".png";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  toast("QR скачан!");
+}
 function updateBadge() {
   var n = ST.products.filter(function(p){ return p.quantity===0; }).length;
   var b = document.getElementById('out-badge');
