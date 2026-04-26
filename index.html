@@ -207,21 +207,19 @@ html,body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif
           <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Найден товар</div>
           <div class="res-name" id="r-name"></div>
           <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:12px" id="r-id"></div>
-          <div class="price-box">
-            <div class="prow"><span class="plbl">Цена закупки:</span><span class="pval" id="r-cost"></span></div>
-            <div class="prow"><span class="plbl">НДС 21%:</span><span class="pval" id="r-vat"></span></div>
-            <div class="prow"><span class="plbl">Наценка 100%:</span><span class="pval" id="r-markup"></span></div>
-            <div class="divider"></div>
-            <div class="prow" style="margin-top:4px">
-              <span style="color:var(--gold);font-weight:700;font-size:14px">ЦЕНА ПРОДАЖИ:</span>
-              <span class="pvtotal" id="r-sale"></span>
-            </div>
+          <div class="price-box" style="text-align:center;padding:20px 14px">
+            <div style="color:var(--muted);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">ЦЕНА ПРОДАЖИ</div>
+            <div class="pvtotal" id="r-sale" style="font-size:38px"></div>
           </div>
           <div style="color:var(--muted);font-size:12px;text-align:center;margin-bottom:16px">
             На складе: <strong id="r-qty" style="font-family:'IBM Plex Mono',monospace"></strong>
           </div>
-          <button class="btn btn-green" onclick="confirmSale()" style="margin-bottom:10px">
-            ✓ &nbsp;Продать — <span id="r-sale-btn" style="font-family:'IBM Plex Mono',monospace"></span>
+          <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;margin-bottom:10px">Тип продажи:</div>
+          <button class="btn btn-green" onclick="confirmSale('regular')" style="margin-bottom:10px">
+            ✓ &nbsp;Обычная продажа — <span id="r-sale-btn" style="font-family:'IBM Plex Mono',monospace"></span>
+          </button>
+          <button class="btn" onclick="confirmSale('barber')" style="background:var(--s3);border:2px solid var(--gold);color:var(--gold);margin-bottom:10px;border-radius:10px;padding:14px 20px;font-size:15px;font-weight:700;width:100%">
+            ✂ &nbsp;Продажа от Барбера &nbsp;<span style="font-size:12px;opacity:.8">(−1 € барберу)</span>
           </button>
           <button class="btn btn-ghost" onclick="cancelSale()">Отмена</button>
         </div>
@@ -559,7 +557,7 @@ function showResult(p) {
 
 function cancelSale() { curProduct = null; showScanState('start'); }
 
-async function confirmSale() {
+async function confirmSale(type) {
   if (!curProduct) return;
   var product = ST.products.find(function(p){ return p.id === curProduct.id; });
   if (!product || product.quantity <= 0) {
@@ -567,30 +565,39 @@ async function confirmSale() {
     cancelSale(); return;
   }
 
+  var isBarber = (type === 'barber');
+  var barberCommission = isBarber ? 1.00 : 0;
+  var grossProfit = Math.round((product.sale - product.cost) * 100) / 100;
+  var netProfit = Math.round((grossProfit - barberCommission) * 100) / 100;
+
   var sale = {
     id: saleId(),
     productId: product.id,
     name: product.name,
     cost: product.cost,
     sale: product.sale,
-    profit: Math.round((product.sale - product.cost) * 100) / 100,
+    profit: grossProfit,
+    barberCommission: barberCommission,
+    netProfit: netProfit,
+    saleType: isBarber ? 'barber' : 'regular',
     ts: new Date().toISOString()
   };
 
   try {
-    // Атомарная операция: уменьшить остаток + записать продажу
     var batch = db.batch();
     batch.update(db.collection('products').doc(product.id), { quantity: product.quantity - 1 });
     batch.set(db.collection('sales').doc(sale.id), sale);
     await batch.commit();
 
-    document.getElementById('suc-info').textContent = product.name + ' — ' + fmt(product.sale);
+    var label = isBarber ? '✂ Продажа от Барбера' : 'Продажа';
+    document.getElementById('suc-info').textContent = product.name + ' — ' + fmt(product.sale) + '  ' + label;
     showScanState('success');
     curProduct = null;
     updateBadge();
   } catch(e) {
     toast('Ошибка записи. Проверьте интернет.', false);
   }
+}
 }
 
 // ─── Товары ────────────────────────────────────────────────────
@@ -704,20 +711,31 @@ function renderAnalytics() {
   var s = ST.sales, p = ST.products;
   var cnt = s.length;
   var rev = s.reduce(function(a,x){ return a+x.sale; }, 0);
-  var prof = s.reduce(function(a,x){ return a+x.profit; }, 0);
+  var barberSales = s.filter(function(x){ return x.saleType==='barber'; });
+  var barberCnt = barberSales.length;
+  var barberComm = Math.round(barberSales.reduce(function(a,x){ return a+(x.barberCommission||1); }, 0) * 100) / 100;
+  var netProfit = Math.round(s.reduce(function(a,x){ return a+(x.netProfit !== undefined ? x.netProfit : x.profit); }, 0) * 100) / 100;
   var inv = p.reduce(function(a,x){ return a+x.cost*x.quantity; }, 0);
   var outArr = p.filter(function(x){ return x.quantity===0; });
   var lowArr = p.filter(function(x){ return x.quantity>0 && x.quantity<=3; });
 
   document.getElementById('stats-grid').innerHTML =
-    '<div class="scard"><div class="slbl">Продаж</div><div class="sval" style="color:var(--gold)">'+cnt+'</div><div class="ssub">транзакций</div></div>'
+    '<div class="scard"><div class="slbl">Продаж</div><div class="sval" style="color:var(--gold)">'+cnt+'</div><div class="ssub">всего транзакций</div></div>'
     +'<div class="scard"><div class="slbl">Выручка</div><div class="sval">'+fmt(rev)+'</div><div class="ssub">от продаж</div></div>'
-    +'<div class="scard"><div class="slbl">Прибыль</div><div class="sval" style="color:var(--green)">'+fmt(prof)+'</div><div class="ssub">чистая</div></div>'
+    +'<div class="scard"><div class="slbl">Наша прибыль</div><div class="sval" style="color:var(--green)">'+fmt(netProfit)+'</div><div class="ssub">после комиссий</div></div>'
     +'<div class="scard"><div class="slbl">Склад</div><div class="sval" style="color:var(--muted)">'+fmt(inv)+'</div><div class="ssub">закупочная стоим.</div></div>';
 
-  var alerts = '';
-  if (outArr.length>0) alerts += '<div class="alert alert-red">Закончилось: '+outArr.map(function(x){ return esc(x.name); }).join(', ')+'</div>';
-  if (lowArr.length>0) alerts += '<div class="alert alert-warn">Заканчивается (&le;3 шт.): '+lowArr.map(function(x){ return esc(x.name); }).join(', ')+'</div>';
+  var barberBlock = barberCnt > 0
+    ? '<div style="background:rgba(201,168,76,.08);border:1px solid var(--gold);border-radius:10px;padding:14px 16px;margin-bottom:12px">'
+      + '<div style="font-size:10px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">&#9988; Продажи от Барбера</div>'
+      + '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted);font-size:13px">Продаж через барбера:</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--gold)">'+barberCnt+' шт.</span></div>'
+      + '<div style="display:flex;justify-content:space-between"><span style="color:var(--muted);font-size:13px">К выплате барберу:</span><span style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:var(--warn)">'+fmt(barberComm)+'</span></div>'
+      + '</div>'
+    : '';
+
+  var alerts = barberBlock;
+  if (outArr.length>0) alerts += '<div class="alert alert-red">&#9888; Закончилось: '+outArr.map(function(x){ return esc(x.name); }).join(', ')+'</div>';
+  if (lowArr.length>0) alerts += '<div class="alert alert-warn">&#9888; Заканчивается (3 шт.): '+lowArr.map(function(x){ return esc(x.name); }).join(', ')+'</div>';
   document.getElementById('alerts-area').innerHTML = alerts;
 
   if (s.length===0) {
@@ -725,12 +743,19 @@ function renderAnalytics() {
     return;
   }
   document.getElementById('sales-list').innerHTML = s.map(function(x) {
+    var isBarber = x.saleType === 'barber';
+    var badge = isBarber
+      ? '<span style="font-size:10px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4);border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:700">&#9988; Барбер</span>'
+      : '';
+    var commLine = isBarber
+      ? '<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--warn)">-1.00 EUR барберу</div>'
+      : '';
     return '<div class="sale-item"><div>'
-      +'<div style="font-weight:600;font-size:14px;margin-bottom:3px">'+esc(x.name)+'</div>'
+      +'<div style="font-weight:600;font-size:14px;margin-bottom:3px">'+esc(x.name)+badge+'</div>'
       +'<div style="color:var(--muted);font-size:12px">'+fmtDate(x.ts)+'</div></div>'
       +'<div style="text-align:right">'
-      +'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:15px;color:var(--gold)">'+fmt(x.sale)+'</div>'
-      +'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:12px;color:var(--green)">+'+fmt(x.profit)+'</div>'
+      +'<div style="font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--gold)">'+fmt(x.sale)+'</div>'
+      +commLine
       +'</div></div>';
   }).join('');
 }
