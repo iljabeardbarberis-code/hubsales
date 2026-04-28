@@ -1071,8 +1071,8 @@ function renderAnalytics() {
   if (barberCnt > 0) {
     alerts += '<div style="background:rgba(201,168,76,.08);border:1px solid var(--gold);border-radius:10px;padding:14px 16px;margin-bottom:12px">'
       + '<div style="font-size:10px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">&#9988; Продажи от Барбера</div>'
-      + '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted);font-size:13px">Продаж через барбера:</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--gold)">' + barberCnt + ' шт.</span></div>'
-      + '<div style="display:flex;justify-content:space-between"><span style="color:var(--muted);font-size:13px">К выплате барберу:</span><span style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:var(--warn)">' + fmt(barberComm) + '</span></div>'
+      + '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted);font-size:13px">Продаж через барбера:</span><span style="font-family:\'IBM Plex Mono\',monospace;color:var(--gold)">' + barberCnt + ' шт.</span></div>'
+      + '<div style="display:flex;justify-content:space-between"><span style="color:var(--muted);font-size:13px">К выплате барберу:</span><span style="font-family:\'IBM Plex Mono\',monospace;font-size:16px;font-weight:600;color:var(--warn)">' + fmt(barberComm) + '</span></div>'
       + '</div>';
   }
   if (outArr.length > 0) alerts += '<div class="alert alert-red">Закончилось: ' + outArr.map(function(x){ return esc(x.name); }).join(', ') + '</div>';
@@ -1089,11 +1089,11 @@ function renderAnalytics() {
     var isCustom  = x.customPrice;
     var badge     = isBarber ? '<span style="font-size:10px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4);border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:700">&#9988; Барбер</span>' : '';
     var custBadge = isCustom ? '<span style="font-size:10px;background:rgba(61,158,106,.12);color:var(--green);border:1px solid rgba(61,158,106,.4);border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:700">&#9998; цена</span>' : '';
-    var commLine  = isBarber ? '<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--warn)">-1.00 € барберу</div>' : '';
+    var commLine  = isBarber ? '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:var(--warn)">-1.00 € барберу</div>' : '';
     return '<div class="sale-item">'
       + '<div><div style="font-weight:600;font-size:14px;margin-bottom:3px">' + esc(x.name) + badge + custBadge + '</div>'
       + '<div style="color:var(--muted);font-size:12px">' + fmtDate(x.ts) + '</div></div>'
-      + '<div style="text-align:right"><div style="font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--gold)">' + fmt(x.sale) + '</div>' + commLine + '</div>'
+      + '<div style="text-align:right"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:15px;color:var(--gold)">' + fmt(x.sale) + '</div>' + commLine + '</div>'
     + '</div>';
   }).join('');
 }
