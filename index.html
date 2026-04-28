@@ -205,8 +205,15 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
           <button class="btn btn-green" onclick="confirmSale('regular')" style="margin-bottom:10px" id="btn-regular">
             &#10003;&nbsp; Обычная продажа — <span id="r-sale-btn"></span>
           </button>
-          <button class="btn-barber" onclick="confirmSale('barber')">
+          <button class="btn-barber" onclick="confirmSale('barber')" style="margin-bottom:10px">
             &#9988;&nbsp; Продажа от Барбера &nbsp;<span style="font-size:12px;opacity:.8">(−1 € барберу)</span>
+          </button>
+          <div style="height:1px;background:var(--border);margin:4px 0 12px"></div>
+          <button class="btn" onclick="openCustomPrice()" style="background:var(--s3);border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;width:100%;margin-bottom:10px">
+            &#9998;&nbsp; Другая цена
+          </button>
+          <button class="btn" onclick="confirmWriteoff()" style="background:var(--s3);border:1px solid var(--red);color:var(--red);border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;width:100%;margin-bottom:10px">
+            &#128465;&nbsp; Списать товар
           </button>
           <button class="btn btn-ghost" onclick="cancelSale()">Отмена</button>
         </div>
@@ -337,6 +344,59 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
   </div>
 </div>
 
+<!-- MODAL: Списание -->
+<div class="modal center" id="modal-writeoff" onclick="if(event.target===this)closeModal('modal-writeoff')">
+  <div class="msheet ctr" style="max-width:320px;text-align:left">
+    <div style="font-size:32px;text-align:center;margin-bottom:8px">&#128465;</div>
+    <div class="mtitle" style="text-align:center">СПИСАНИЕ ТОВАРА</div>
+    <div style="background:var(--s3);border-radius:8px;padding:12px 14px;margin-bottom:16px">
+      <div style="font-weight:600;font-size:15px;margin-bottom:4px" id="wo-name"></div>
+      <div style="color:var(--muted);font-size:13px">На складе: <span id="wo-qty" style="font-family:'IBM Plex Mono',monospace;color:var(--text)"></span></div>
+    </div>
+    <div class="field">
+      <label>Причина списания</label>
+      <input id="wo-reason" type="text" placeholder="Напр: брак, истёк срок..." autocomplete="off">
+    </div>
+    <div style="font-size:12px;color:var(--warn);margin-bottom:16px">&#9888; Товар будет убран со склада без записи продажи</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-writeoff')" style="flex:1">Отмена</button>
+      <button class="btn" onclick="doWriteoff()" style="flex:2;background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer">СПИСАТЬ</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Другая цена -->
+<div class="modal center" id="modal-custprice" onclick="if(event.target===this)closeModal('modal-custprice')">
+  <div class="msheet ctr" style="max-width:320px;text-align:left">
+    <div style="font-size:32px;text-align:center;margin-bottom:8px">&#9998;</div>
+    <div class="mtitle" style="text-align:center">ДРУГАЯ ЦЕНА</div>
+    <div style="background:var(--s3);border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--muted);font-size:13px">Стандартная цена:</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:15px" id="cp-standard"></span>
+    </div>
+    <div class="field">
+      <label>Новая цена (€)</label>
+      <input id="cp-price" type="number" placeholder="0.00" inputmode="decimal" step="0.01" min="0.01"
+        onkeydown="if(event.key==='Enter')doCustomSale('regular')"
+        oninput="updateCustomPreview()">
+    </div>
+    <div id="cp-preview" style="display:none;background:var(--s3);border-radius:8px;padding:10px 14px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between">
+        <span style="color:var(--muted);font-size:13px">Прибыль с продажи:</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:14px" id="cp-profit"></span>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;margin-bottom:10px">Тип продажи:</div>
+    <button class="btn btn-green" onclick="doCustomSale('regular')" style="margin-bottom:10px">
+      &#10003;&nbsp; Обычная продажа
+    </button>
+    <button class="btn-barber" onclick="doCustomSale('barber')" style="margin-bottom:10px">
+      &#9988;&nbsp; Продажа от Барбера &nbsp;<span style="font-size:12px;opacity:.8">(−1 € барберу)</span>
+    </button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-custprice')">Отмена</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- Firebase SDK -->
@@ -414,6 +474,87 @@ function toast(msg, ok) {
   toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 2600);
 }
 
+// ── Другая цена ────────────────────────────────────────
+function openCustomPrice() {
+  if (!curProduct) return;
+  // Требуем пароль перед изменением цены
+  pinTarget = '__custprice__';
+  document.getElementById('f-pin').value = '';
+  document.getElementById('pin-error').style.display = 'none';
+  openModal('modal-pin');
+  setTimeout(function(){ document.getElementById('f-pin').focus(); }, 200);
+}
+
+function _openCustomPriceModal() {
+  var p = curProduct;
+  if (!p) return;
+  document.getElementById('cp-standard').textContent = fmt(p.sale);
+  document.getElementById('cp-price').value = '';
+  document.getElementById('cp-preview').style.display = 'none';
+  openModal('modal-custprice');
+  setTimeout(function(){ document.getElementById('cp-price').focus(); }, 200);
+}
+
+function updateCustomPreview() {
+  var price = parseFloat(document.getElementById('cp-price').value);
+  var pp = document.getElementById('cp-preview');
+  if (!curProduct || isNaN(price) || price <= 0) { pp.style.display = 'none'; return; }
+  var profit = Math.round((price - curProduct.cost) * 100) / 100;
+  var el = document.getElementById('cp-profit');
+  el.textContent = (profit >= 0 ? '+' : '') + fmt(profit);
+  el.style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
+  pp.style.display = 'block';
+}
+
+function doCustomSale(type) {
+  if (!curProduct) return;
+  var customPrice = parseFloat(document.getElementById('cp-price').value);
+  if (isNaN(customPrice) || customPrice <= 0) {
+    toast('Введите корректную цену', false); return;
+  }
+
+  var p = null;
+  for (var i = 0; i < ST.products.length; i++) {
+    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
+  }
+  if (!p || p.quantity <= 0) {
+    toast('Товар закончился!', false); cancelSale(); return;
+  }
+
+  var isBarber         = (type === 'barber');
+  var barberCommission = isBarber ? 1.00 : 0;
+  var grossProfit      = Math.round((customPrice - p.cost) * 100) / 100;
+  var netProfit        = Math.round((grossProfit - barberCommission) * 100) / 100;
+
+  var sale = {
+    id:               saleUid(),
+    productId:        p.id,
+    name:             p.name,
+    cost:             p.cost,
+    sale:             customPrice,
+    standardSale:     p.sale,
+    profit:           grossProfit,
+    barberCommission: barberCommission,
+    netProfit:        netProfit,
+    saleType:         isBarber ? 'barber' : 'regular',
+    customPrice:      true,
+    ts:               new Date().toISOString()
+  };
+
+  var batch = db.batch();
+  batch.update(db.collection('products').doc(p.id), { quantity: p.quantity - 1 });
+  batch.set(db.collection('sales').doc(sale.id), sale);
+  batch.commit()
+    .then(function() {
+      closeModal('modal-custprice');
+      var label = isBarber ? ' &#9988; Барбер' : '';
+      document.getElementById('suc-info').innerHTML = esc(p.name) + ' — ' + fmt(customPrice) + label;
+      showScanState('success');
+      curProduct = null;
+    })
+    .catch(function() { toast('Ошибка записи. Проверьте интернет.', false); });
+}
+
 // ── Firebase: слушатели реального времени ──────────────
 function initFirebase() {
   // Товары
@@ -473,9 +614,23 @@ function switchView(v) {
 function checkPin() {
   var entered = document.getElementById('f-pin').value.trim();
   if (entered === PIN) {
-    pinUnlocked = true;
     closeModal('modal-pin');
-    if (pinTarget) { switchView(pinTarget); pinTarget = null; }
+    if (pinTarget === '__writeoff__') {
+      pinTarget = null;
+      var p = window._writeoffProduct;
+      if (p) {
+        document.getElementById('wo-name').textContent = p.name;
+        document.getElementById('wo-qty').textContent  = p.quantity + ' шт.';
+        document.getElementById('wo-reason').value = '';
+        openModal('modal-writeoff');
+      }
+    } else if (pinTarget === '__custprice__') {
+      pinTarget = null;
+      _openCustomPriceModal();
+    } else {
+      pinUnlocked = true;
+      if (pinTarget) { switchView(pinTarget); pinTarget = null; }
+    }
   } else {
     document.getElementById('pin-error').style.display = 'block';
     document.getElementById('f-pin').value = '';
@@ -595,6 +750,59 @@ function showResult(p) {
 }
 
 function cancelSale() { curProduct = null; showScanState('start'); }
+
+// ── Списание товара ────────────────────────────────────
+function confirmWriteoff() {
+  if (!curProduct) return;
+  var p = null;
+  for (var i = 0; i < ST.products.length; i++) {
+    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
+  }
+  if (!p || p.quantity <= 0) {
+    toast('Товар уже закончился на складе!', false);
+    cancelSale();
+    return;
+  }
+
+  // Показать модал подтверждения списания — требует пароль
+  pinTarget = '__writeoff__';
+  document.getElementById('f-pin').value = '';
+  document.getElementById('pin-error').style.display = 'none';
+  openModal('modal-pin');
+  setTimeout(function(){ document.getElementById('f-pin').focus(); }, 200);
+  // Сохраняем продукт для списания после ввода пароля
+  window._writeoffProduct = p;
+}
+
+function doWriteoff() {
+  var p = null;
+  for (var i = 0; i < ST.products.length; i++) {
+    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
+  }
+  if (!p) return;
+
+  var reason = document.getElementById('wo-reason').value.trim() || 'Без причины';
+
+  var wo = {
+    id:        'WO-' + Date.now().toString(36).toUpperCase(),
+    productId: p.id,
+    name:      p.name,
+    reason:    reason,
+    ts:        new Date().toISOString()
+  };
+
+  var batch = db.batch();
+  batch.update(db.collection('products').doc(p.id), { quantity: p.quantity - 1 });
+  batch.set(db.collection('writeoffs').doc(wo.id), wo);
+  batch.commit()
+    .then(function() {
+      closeModal('modal-writeoff');
+      document.getElementById('suc-info').innerHTML = '&#128465; Списано: ' + esc(p.name);
+      showScanState('success');
+      curProduct = null;
+    })
+    .catch(function() { toast('Ошибка. Проверьте интернет.', false); });
+}
 
 // ── Подтвердить продажу ────────────────────────────────
 function confirmSale(type) {
