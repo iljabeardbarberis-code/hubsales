@@ -146,7 +146,10 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
       <div class="logo">HUB<span>SALES</span></div>
       <div class="logo-sub">Учёт продаж</div>
     </div>
+    <div style="display:flex;gap:8px;align-items:center">
     <button id="hdr-add" class="btn btn-gold btn-sm" onclick="openAddProduct()" style="display:none">+ Товар</button>
+    <button id="hdr-lock" onclick="lockApp()" style="display:none;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--muted);font-size:18px" title="Заблокировать">&#128274;</button>
+  </div>
   </div>
 
   <div id="content">
@@ -317,6 +320,23 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
   </div>
 </div>
 
+<!-- MODAL: Пароль -->
+<div class="modal center" id="modal-pin">
+  <div class="msheet ctr" style="max-width:300px">
+    <div style="font-size:36px;margin-bottom:10px">&#128274;</div>
+    <div class="mtitle">ВВЕДИТЕ ПАРОЛЬ</div>
+    <div class="field" style="text-align:left">
+      <label>Пароль</label>
+      <input id="f-pin" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter')checkPin()">
+    </div>
+    <div id="pin-error" style="display:none;color:var(--red);font-size:13px;font-weight:600;margin-bottom:12px;text-align:center">Неверный пароль</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" onclick="closePin()" style="flex:1">Отмена</button>
+      <button class="btn btn-gold" onclick="checkPin()" style="flex:2">ВОЙТИ</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- Firebase SDK -->
@@ -424,16 +444,56 @@ function initFirebase() {
 }
 
 // ── Навигация ──────────────────────────────────────────
+var PIN         = '322952';
+var pinUnlocked = false;
+var pinTarget   = null;
+
 function switchView(v) {
+  // Защищённые разделы требуют пароль
+  if ((v === 'products' || v === 'analytics') && !pinUnlocked) {
+    pinTarget = v;
+    document.getElementById('f-pin').value = '';
+    document.getElementById('pin-error').style.display = 'none';
+    openModal('modal-pin');
+    setTimeout(function(){ document.getElementById('f-pin').focus(); }, 200);
+    return;
+  }
   stopScan();
   document.querySelectorAll('.view').forEach(function(el){ el.classList.remove('active'); });
   document.querySelectorAll('.nbtn').forEach(function(el){ el.classList.remove('active'); });
   document.getElementById('view-' + v).classList.add('active');
   document.getElementById('nav-'  + v).classList.add('active');
-  document.getElementById('hdr-add').style.display = v === 'products' ? 'inline-block' : 'none';
+  document.getElementById('hdr-add').style.display  = v === 'products' ? 'inline-block' : 'none';
+  document.getElementById('hdr-lock').style.display = (v === 'products' || v === 'analytics') ? 'inline-block' : 'none';
   curView = v;
   if (v === 'products') renderProducts();
   if (v === 'analytics') renderAnalytics();
+}
+
+function checkPin() {
+  var entered = document.getElementById('f-pin').value.trim();
+  if (entered === PIN) {
+    pinUnlocked = true;
+    closeModal('modal-pin');
+    if (pinTarget) { switchView(pinTarget); pinTarget = null; }
+  } else {
+    document.getElementById('pin-error').style.display = 'block';
+    document.getElementById('f-pin').value = '';
+    document.getElementById('f-pin').focus();
+  }
+}
+
+function closePin() {
+  closeModal('modal-pin');
+  pinTarget = null;
+}
+
+function lockApp() {
+  pinUnlocked = false;
+  switchView('scan');
+  document.getElementById('hdr-lock').style.display = 'none';
+  document.getElementById('hdr-add').style.display  = 'none';
+  toast('Раздел заблокирован');
 }
 
 // ── Модалки ────────────────────────────────────────────
