@@ -130,6 +130,10 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
 #toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-10px); padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 500; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .2s, transform .2s; }
 #toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ── Analytics tabs ── */
+.atab { flex: 1; background: var(--s3); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 700; padding: 10px 6px; cursor: pointer; letter-spacing: .5px; }
+.atab.active { background: var(--gold); border-color: var(--gold); color: #000; }
+
 /* ── Animations ── */
 @keyframes fadeUp  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes popIn   { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
@@ -240,9 +244,19 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
 
     <!-- ══ АНАЛИТИКА ══ -->
     <div id="view-analytics" class="view">
+      <!-- Вкладки -->
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="atab active" id="atab-all"     onclick="switchAtab('all')">Всё время</button>
+        <button class="atab"        id="atab-today"   onclick="switchAtab('today')">Сегодня</button>
+        <button class="atab"        id="atab-month"   onclick="switchAtab('month')">Месяц</button>
+      </div>
+      <!-- Выбор месяца (только при вкладке "Месяц") -->
+      <div id="month-picker" style="display:none;margin-bottom:14px;display:none">
+        <select id="month-select" onchange="renderAnalytics()" style="width:100%;background:var(--s3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;padding:10px 14px;outline:none;-webkit-appearance:none"></select>
+      </div>
       <div class="stat-grid" id="stats-grid"></div>
       <div id="alerts-area"></div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px">История продаж</div>
+      <div id="analytics-section-title" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px">История продаж</div>
       <div id="sales-list"></div>
     </div>
 
@@ -1014,10 +1028,29 @@ function renderProducts() {
 
 // ── Рендер: Аналитика ──────────────────────────────────
 function renderAnalytics() {
-  var s = ST.sales, p = ST.products;
+  var atab = window._atab || 'all';
+  var now  = new Date();
 
+  // Фильтруем продажи по вкладке
+  var allSales = ST.sales;
+  var s;
+  if (atab === 'today') {
+    var todayStr = now.toISOString().slice(0, 10);
+    s = allSales.filter(function(x){ return x.ts.slice(0,10) === todayStr; });
+    document.getElementById('analytics-section-title').textContent = 'Продажи сегодня';
+  } else if (atab === 'month') {
+    s = filterByMonth();
+    var sel = document.getElementById('month-select');
+    var label = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'Месяц';
+    document.getElementById('analytics-section-title').textContent = 'Продажи — ' + label;
+  } else {
+    s = allSales;
+    document.getElementById('analytics-section-title').textContent = 'История продаж';
+  }
+
+  var p = ST.products;
   var cnt         = s.length;
-  var revenue     = s.reduce(function(a,x){ return a + x.sale;  }, 0);
+  var revenue     = s.reduce(function(a,x){ return a + x.sale; }, 0);
   var barberSales = s.filter(function(x){ return x.saleType === 'barber'; });
   var barberCnt   = barberSales.length;
   var barberComm  = Math.round(barberSales.reduce(function(a,x){ return a + (x.barberCommission || 1); }, 0) * 100) / 100;
@@ -1026,41 +1059,89 @@ function renderAnalytics() {
   var outArr      = p.filter(function(x){ return x.quantity === 0; });
   var lowArr      = p.filter(function(x){ return x.quantity > 0 && x.quantity <= 3; });
 
-  // Карточки статистики
+  // Статистика
   document.getElementById('stats-grid').innerHTML =
-      '<div class="scard"><div class="slbl">Продаж</div><div class="sval" style="color:var(--gold)">' + cnt + '</div><div class="ssub">всего транзакций</div></div>'
+      '<div class="scard"><div class="slbl">Продаж</div><div class="sval" style="color:var(--gold)">' + cnt + '</div><div class="ssub">транзакций</div></div>'
     + '<div class="scard"><div class="slbl">Выручка</div><div class="sval">' + fmt(revenue) + '</div><div class="ssub">от продаж</div></div>'
     + '<div class="scard"><div class="slbl">Наша прибыль</div><div class="sval" style="color:var(--green)">' + fmt(netProfit) + '</div><div class="ssub">после комиссий</div></div>'
-    + '<div class="scard"><div class="slbl">Склад</div><div class="sval" style="color:var(--muted)">' + fmt(invValue) + '</div><div class="ssub">закупочная стоим.</div></div>';
+    + '<div class="scard"><div class="slbl">Склад</div><div class="sval" style="color:var(--muted)">' + fmt(invValue) + '</div><div class="ssub">закупочная</div></div>';
 
-  // Блок барбера
+  // Алерты
   var alerts = '';
   if (barberCnt > 0) {
     alerts += '<div style="background:rgba(201,168,76,.08);border:1px solid var(--gold);border-radius:10px;padding:14px 16px;margin-bottom:12px">'
       + '<div style="font-size:10px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">&#9988; Продажи от Барбера</div>'
-      + '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted);font-size:13px">Продаж через барбера:</span><span style="font-family:\'IBM Plex Mono\',monospace;color:var(--gold)">' + barberCnt + ' шт.</span></div>'
-      + '<div style="display:flex;justify-content:space-between"><span style="color:var(--muted);font-size:13px">К выплате барберу:</span><span style="font-family:\'IBM Plex Mono\',monospace;font-size:16px;font-weight:600;color:var(--warn)">' + fmt(barberComm) + '</span></div>'
+      + '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted);font-size:13px">Продаж через барбера:</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--gold)">' + barberCnt + ' шт.</span></div>'
+      + '<div style="display:flex;justify-content:space-between"><span style="color:var(--muted);font-size:13px">К выплате барберу:</span><span style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:var(--warn)">' + fmt(barberComm) + '</span></div>'
       + '</div>';
   }
   if (outArr.length > 0) alerts += '<div class="alert alert-red">Закончилось: ' + outArr.map(function(x){ return esc(x.name); }).join(', ') + '</div>';
   if (lowArr.length > 0) alerts += '<div class="alert alert-warn">Заканчивается (&le;3 шт.): ' + lowArr.map(function(x){ return esc(x.name); }).join(', ') + '</div>';
   document.getElementById('alerts-area').innerHTML = alerts;
 
-  // История продаж
+  // История
   if (s.length === 0) {
-    document.getElementById('sales-list').innerHTML = '<div class="empty"><div style="font-size:2.5em;margin-bottom:10px">&#128202;</div><div>Продаж ещё нет</div></div>';
+    document.getElementById('sales-list').innerHTML = '<div class="empty"><div style="font-size:2.5em;margin-bottom:10px">&#128202;</div><div>Продаж нет за этот период</div></div>';
     return;
   }
   document.getElementById('sales-list').innerHTML = s.map(function(x) {
     var isBarber  = (x.saleType === 'barber');
+    var isCustom  = x.customPrice;
     var badge     = isBarber ? '<span style="font-size:10px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4);border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:700">&#9988; Барбер</span>' : '';
-    var commLine  = isBarber ? '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:var(--warn)">-1.00 \u20AC барберу</div>' : '';
+    var custBadge = isCustom ? '<span style="font-size:10px;background:rgba(61,158,106,.12);color:var(--green);border:1px solid rgba(61,158,106,.4);border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:700">&#9998; цена</span>' : '';
+    var commLine  = isBarber ? '<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--warn)">-1.00 € барберу</div>' : '';
     return '<div class="sale-item">'
-      + '<div><div style="font-weight:600;font-size:14px;margin-bottom:3px">' + esc(x.name) + badge + '</div>'
+      + '<div><div style="font-weight:600;font-size:14px;margin-bottom:3px">' + esc(x.name) + badge + custBadge + '</div>'
       + '<div style="color:var(--muted);font-size:12px">' + fmtDate(x.ts) + '</div></div>'
-      + '<div style="text-align:right"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:15px;color:var(--gold)">' + fmt(x.sale) + '</div>' + commLine + '</div>'
+      + '<div style="text-align:right"><div style="font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--gold)">' + fmt(x.sale) + '</div>' + commLine + '</div>'
     + '</div>';
   }).join('');
+}
+
+// ── Вкладки аналитики ──────────────────────────────────
+function switchAtab(tab) {
+  window._atab = tab;
+  document.querySelectorAll('.atab').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('atab-' + tab).classList.add('active');
+
+  var mp = document.getElementById('month-picker');
+  if (tab === 'month') {
+    mp.style.display = 'block';
+    buildMonthOptions();
+  } else {
+    mp.style.display = 'none';
+  }
+  renderAnalytics();
+}
+
+function buildMonthOptions() {
+  var sel = document.getElementById('month-select');
+  var months = {};
+  ST.sales.forEach(function(x) {
+    var key = x.ts.slice(0, 7); // "2025-04"
+    months[key] = true;
+  });
+  // Always include current month
+  var now = new Date();
+  var cur = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  months[cur] = true;
+
+  var keys = Object.keys(months).sort().reverse();
+  var MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  var current = sel.value;
+  sel.innerHTML = keys.map(function(k) {
+    var parts = k.split('-');
+    var label = MONTH_NAMES[parseInt(parts[1],10)-1] + ' ' + parts[0];
+    return '<option value="' + k + '"' + (k === current ? ' selected' : '') + '>' + label + '</option>';
+  }).join('');
+  if (!sel.value) sel.value = keys[0];
+}
+
+function filterByMonth() {
+  var sel = document.getElementById('month-select');
+  var key = sel ? sel.value : '';
+  if (!key) return ST.sales;
+  return ST.sales.filter(function(x){ return x.ts.slice(0,7) === key; });
 }
 
 // ── Бейдж "нет в наличии" ──────────────────────────────
