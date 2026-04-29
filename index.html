@@ -932,7 +932,6 @@ function showResult(p) {
   document.getElementById('r-name').textContent = p.name;
   document.getElementById('r-id').textContent   = p.id;
   document.getElementById('r-sale').textContent = fmt(p.sale);
-  document.getElementById('r-sale-btn').textContent = fmt(p.sale);
   var qEl = document.getElementById('r-qty');
   qEl.textContent  = p.quantity + ' шт.';
   qEl.style.color  = p.quantity === 0 ? 'var(--red)' : p.quantity <= 3 ? 'var(--warn)' : 'var(--green)';
