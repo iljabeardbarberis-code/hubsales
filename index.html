@@ -134,6 +134,16 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
 .atab { flex: 1; background: var(--s3); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 700; padding: 10px 6px; cursor: pointer; letter-spacing: .5px; }
 .atab.active { background: var(--gold); border-color: var(--gold); color: #000; }
 
+/* ── Cart ── */
+.cart-bar { background: var(--s2); border: 1px solid var(--gold); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+.cart-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
+.cart-item-name { font-size: 13px; color: var(--text); flex: 1; }
+.cart-item-price { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--gold); margin-left: 8px; }
+.cart-item-del { background: none; border: none; color: var(--red); font-size: 18px; cursor: pointer; padding: 0 4px; line-height: 1; }
+.cart-total { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: 6px; border-top: 1px solid var(--border); }
+.cart-total-lbl { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.cart-total-val { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600; color: var(--gold); }
+
 /* ── Animations ── */
 @keyframes fadeUp  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes popIn   { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
@@ -205,14 +215,10 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
           <div style="color:var(--muted);font-size:12px;text-align:center;margin-bottom:16px">
             На складе: <strong id="r-qty" style="font-family:'IBM Plex Mono',monospace"></strong>
           </div>
-          <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;margin-bottom:10px">Тип продажи:</div>
-          <button class="btn btn-green" onclick="confirmSale('regular')" style="margin-bottom:10px" id="btn-regular">
-            &#10003;&nbsp; Обычная продажа — <span id="r-sale-btn"></span>
+          <button class="btn btn-green" onclick="addToCart()" style="margin-bottom:10px">
+            &#43;&nbsp; Добавить в чек
           </button>
-          <button class="btn-barber" onclick="confirmSale('barber')" style="margin-bottom:10px">
-            &#9988;&nbsp; Продажа от Барбера &nbsp;<span style="font-size:12px;opacity:.8">(−1 € барберу)</span>
-          </button>
-          <div style="height:1px;background:var(--border);margin:4px 0 12px"></div>
+          <div style="height:1px;background:var(--border);margin:4px 0 10px"></div>
           <button class="btn" onclick="openCustomPrice()" style="background:var(--s3);border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;width:100%;margin-bottom:10px">
             &#9998;&nbsp; Другая цена
           </button>
@@ -221,6 +227,23 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
           </button>
           <button class="btn btn-ghost" onclick="cancelSale()">Отмена</button>
         </div>
+      </div>
+
+      <!-- Корзина -->
+      <div id="cart-bar" style="display:none">
+        <div class="cart-bar">
+          <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">&#128722; Текущий чек</div>
+          <div id="cart-items"></div>
+          <div class="cart-total">
+            <span class="cart-total-lbl">Итого:</span>
+            <span class="cart-total-val" id="cart-total-val"></span>
+          </div>
+        </div>
+        <button class="btn btn-green" onclick="openCheckout()" style="margin-bottom:10px">
+          &#10003;&nbsp; Оформить чек (<span id="cart-count">0</span> товара)
+        </button>
+        <button class="btn btn-ghost" onclick="startScan()" style="margin-bottom:10px">+ Сканировать ещё</button>
+        <button class="btn" onclick="clearCart()" style="background:none;color:var(--red);border:none;padding:8px;font-size:13px;cursor:pointer;width:100%">Очистить чек</button>
       </div>
 
       <div id="scan-success" style="display:none">
@@ -401,13 +424,32 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
       </div>
     </div>
     <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;margin-bottom:10px">Тип продажи:</div>
-    <button class="btn btn-green" onclick="doCustomSale('regular')" style="margin-bottom:10px">
-      &#10003;&nbsp; Обычная продажа
-    </button>
-    <button class="btn-barber" onclick="doCustomSale('barber')" style="margin-bottom:10px">
-      &#9988;&nbsp; Продажа от Барбера &nbsp;<span style="font-size:12px;opacity:.8">(−1 € барберу)</span>
+    <button class="btn btn-green" onclick="addToCartFromCustom()" style="margin-bottom:10px">
+      &#43;&nbsp; Добавить в чек с этой ценой
     </button>
     <button class="btn btn-ghost" onclick="closeModal('modal-custprice')">Отмена</button>
+  </div>
+</div>
+
+<!-- MODAL: Оформить чек -->
+<div class="modal" id="modal-checkout" onclick="if(event.target===this)closeModal('modal-checkout')">
+  <div class="msheet">
+    <div class="mtitle">&#128722; ОФОРМИТЬ ЧЕК</div>
+    <div id="checkout-items" style="margin-bottom:14px"></div>
+    <div style="background:var(--s3);border-radius:10px;padding:14px;margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:var(--gold);font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px">Итого к оплате:</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:var(--gold)" id="checkout-total"></span>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;margin-bottom:10px">Тип продажи:</div>
+    <button class="btn btn-green" onclick="confirmCheckout('regular')" style="margin-bottom:10px">
+      &#10003;&nbsp; Обычная продажа
+    </button>
+    <button class="btn-barber" onclick="confirmCheckout('barber')" style="margin-bottom:12px">
+      &#9988;&nbsp; Продажа от Барбера &nbsp;<span style="font-size:12px;opacity:.8">(−1 € барберу)</span>
+    </button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-checkout')">Отмена</button>
   </div>
 </div>
 
@@ -441,6 +483,7 @@ var db = firebase.firestore();
 
 // ── Состояние ──────────────────────────────────────────
 var ST = { products: [], sales: [] };
+var cart = []; // [{product, price, customPrice}]
 var curView    = 'scan';
 var editId     = null;
 var curProduct = null;
@@ -569,6 +612,136 @@ function doCustomSale(type) {
     .catch(function() { toast('Ошибка записи. Проверьте интернет.', false); });
 }
 
+// ── Корзина (чек) ─────────────────────────────────────────
+function addToCart() {
+  if (!curProduct) return;
+  var p = null;
+  for (var i = 0; i < ST.products.length; i++) {
+    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
+  }
+  if (!p) return;
+  if (p.quantity <= 0) { toast('Товар закончился на складе!', false); return; }
+
+  cart.push({ product: p, price: p.sale, customPrice: false });
+  curProduct = null;
+  renderCart();
+  showScanState('start');
+  toast('Добавлено в чек: ' + p.name);
+}
+
+function addToCartFromCustom() {
+  var price = parseFloat(document.getElementById('cp-price').value);
+  if (isNaN(price) || price <= 0) { toast('Введите корректную цену', false); return; }
+  addToCartCustom(price);
+}
+
+function addToCartCustom(price) {
+  if (!curProduct) return;
+  var p = null;
+  for (var i = 0; i < ST.products.length; i++) {
+    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
+  }
+  if (!p) return;
+  cart.push({ product: p, price: price, customPrice: true });
+  curProduct = null;
+  renderCart();
+  closeModal('modal-custprice');
+  showScanState('start');
+  toast('Добавлено в чек: ' + p.name);
+}
+
+function removeFromCart(idx) {
+  cart.splice(idx, 1);
+  renderCart();
+  if (cart.length === 0) showScanState('start');
+  else showScanState('start');
+}
+
+function clearCart() {
+  if (!confirm('Очистить весь чек?')) return;
+  cart = [];
+  showScanState('start');
+}
+
+function renderCart() {
+  var total = cart.reduce(function(a, x){ return a + x.price; }, 0);
+  document.getElementById('cart-count').textContent = cart.length;
+  document.getElementById('cart-total-val').textContent = fmt(total);
+  document.getElementById('cart-items').innerHTML = cart.map(function(item, i) {
+    var customMark = item.customPrice ? ' <span style="font-size:10px;color:var(--green)">&#9998;</span>' : '';
+    return '<div class="cart-row">'
+      + '<span class="cart-item-name">' + esc(item.product.name) + customMark + '</span>'
+      + '<span class="cart-item-price">' + fmt(item.price) + '</span>'
+      + '<button class="cart-item-del" onclick="removeFromCart(' + i + ')">&#215;</button>'
+      + '</div>';
+  }).join('');
+}
+
+function openCheckout() {
+  if (cart.length === 0) return;
+  var total = cart.reduce(function(a, x){ return a + x.price; }, 0);
+  document.getElementById('checkout-total').textContent = fmt(total);
+  document.getElementById('checkout-items').innerHTML = cart.map(function(item) {
+    var customMark = item.customPrice ? ' <span style="font-size:10px;color:var(--green)">&#9998;</span>' : '';
+    return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">'
+      + '<span style="font-size:14px;color:var(--text)">' + esc(item.product.name) + customMark + '</span>'
+      + '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:14px;color:var(--gold)">' + fmt(item.price) + '</span>'
+      + '</div>';
+  }).join('');
+  openModal('modal-checkout');
+}
+
+function confirmCheckout(type) {
+  if (cart.length === 0) return;
+  var isBarber         = (type === 'barber');
+  var barberCommission = isBarber ? 1.00 : 0;
+  var batch = db.batch();
+
+  cart.forEach(function(item) {
+    var p = item.product;
+    // Find current quantity
+    var current = null;
+    for (var i = 0; i < ST.products.length; i++) {
+      if (ST.products[i].id === p.id) { current = ST.products[i]; break; }
+    }
+    if (!current || current.quantity <= 0) return;
+
+    var grossProfit = Math.round((item.price - p.cost) * 100) / 100;
+    var netProfit   = Math.round((grossProfit - barberCommission) * 100) / 100;
+
+    var sale = {
+      id:               saleUid(),
+      productId:        p.id,
+      name:             p.name,
+      cost:             p.cost,
+      sale:             item.price,
+      standardSale:     p.sale,
+      profit:           grossProfit,
+      barberCommission: barberCommission,
+      netProfit:        netProfit,
+      saleType:         isBarber ? 'barber' : 'regular',
+      customPrice:      item.customPrice,
+      ts:               new Date().toISOString()
+    };
+
+    batch.update(db.collection('products').doc(p.id), { quantity: current.quantity - 1 });
+    batch.set(db.collection('sales').doc(sale.id), sale);
+  });
+
+  batch.commit()
+    .then(function() {
+      var total = cart.reduce(function(a, x){ return a + x.price; }, 0);
+      var cnt   = cart.length;
+      closeModal('modal-checkout');
+      cart = [];
+      var label = isBarber ? ' &#9988; Барбер' : '';
+      document.getElementById('suc-info').innerHTML =
+        cnt + ' товара — ' + fmt(total) + label;
+      showScanState('success');
+    })
+    .catch(function() { toast('Ошибка записи. Проверьте интернет.', false); });
+}
+
 // ── Firebase: слушатели реального времени ──────────────
 function initFirebase() {
   // Товары
@@ -675,6 +848,9 @@ function showScanState(s) {
   document.getElementById('scan-btns').style.display    = s === 'scan'    ? 'block' : 'none';
   document.getElementById('scan-result').style.display  = s === 'result'  ? 'block' : 'none';
   document.getElementById('scan-success').style.display = s === 'success' ? 'block' : 'none';
+  // Show cart bar on start/result if cart has items
+  var cartBar = document.getElementById('cart-bar');
+  cartBar.style.display = (cart.length > 0 && (s === 'start' || s === 'result')) ? 'block' : 'none';
   var sw = document.getElementById('scanner-wrap');
   if (s === 'scan') sw.classList.add('on'); else sw.classList.remove('on');
 }
