@@ -5,150 +5,158 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0A0A0A">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <title>HubSales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-:root {
-  --bg: #0A0A0A; --s1: #141414; --s2: #1E1E1E; --s3: #282828;
-  --border: #2E2E2E; --gold: #C9A84C;
-  --text: #F0EBE1; --muted: #888; --green: #3D9E6A; --red: #C94040; --warn: #E08C30;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0A0A0A;--s1:#141414;--s2:#1E1E1E;--s3:#282828;
+  --border:#2E2E2E;--gold:#C9A84C;
+  --text:#F0EBE1;--muted:#888;--green:#3D9E6A;--red:#C94040;--warn:#E08C30;
 }
-html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; height: 100%; overflow: hidden; }
+html,body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;height:100%;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto}
 
-/* ── App layout ── */
-#app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; }
+/* Header */
+.hdr{background:var(--s1);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.logo{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--gold)}
+.logo span{color:var(--text)}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
 
-/* ── Header ── */
-.hdr { background: var(--s1); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-.logo { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: 1px; color: var(--gold); }
-.logo span { color: var(--text); }
-.logo-sub { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+/* Content */
+#content{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.view{display:none;padding:14px;animation:fadeUp .2s ease}
+.view.active{display:block}
 
-/* ── Content ── */
-#content { flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-.view { display: none; padding: 16px; animation: fadeUp .2s ease; }
-.view.active { display: block; }
+/* Nav */
+.bnav{background:var(--s1);border-top:1px solid var(--border);display:flex;height:60px;flex-shrink:0}
+.nbtn{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;position:relative}
+.nbtn.active{color:var(--gold)}
+.nbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
+.nbadge{position:absolute;top:6px;right:calc(50% - 18px);background:var(--red);color:#fff;border-radius:8px;font-size:9px;padding:1px 5px;font-weight:700;display:none}
 
-/* ── Bottom nav ── */
-.bnav { background: var(--s1); border-top: 1px solid var(--border); display: flex; height: 64px; flex-shrink: 0; }
-.nbtn { flex: 1; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--muted); font-family: 'Barlow', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; position: relative; transition: color .2s; }
-.nbtn.active { color: var(--gold); }
-.nbtn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
-.nbadge { position: absolute; top: 8px; right: calc(50% - 20px); background: var(--red); color: #fff; border-radius: 8px; font-size: 9px; padding: 1px 5px; font-weight: 700; display: none; }
+/* Buttons */
+.btn{border:none;border-radius:10px;padding:13px 18px;font-family:'Barlow',sans-serif;font-size:15px;font-weight:600;cursor:pointer;width:100%;display:block;text-align:center}
+.btn:active{opacity:.8}
+.btn-gold{background:var(--gold);color:#000}
+.btn-green{background:var(--green);color:#fff}
+.btn-ghost{background:var(--s3);color:var(--muted);border:1px solid var(--border)}
+.btn-red{background:var(--red);color:#fff}
+.btn-barber{background:var(--s3);border:2px solid var(--gold);color:var(--gold);border-radius:10px;padding:12px 18px;font-family:'Barlow',sans-serif;font-size:14px;font-weight:700;cursor:pointer;width:100%;display:block;text-align:center}
+.btn-sm{padding:7px 12px;font-size:12px;width:auto;display:inline-block;border-radius:8px}
+.btn-icon{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 9px;cursor:pointer;color:var(--muted);font-size:16px}
+.mb8{margin-bottom:8px}.mb10{margin-bottom:10px}.mb12{margin-bottom:12px}.mb14{margin-bottom:14px}.mb16{margin-bottom:16px}
 
-/* ── Buttons ── */
-.btn { border: none; border-radius: 10px; padding: 14px 20px; font-family: 'Barlow', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; display: block; text-align: center; }
-.btn:active { opacity: .8; }
-.btn-gold  { background: var(--gold); color: #000; }
-.btn-green { background: var(--green); color: #fff; }
-.btn-ghost { background: var(--s3); color: var(--muted); border: 1px solid var(--border); }
-.btn-barber { background: var(--s3); border: 2px solid var(--gold); color: var(--gold); border-radius: 10px; padding: 14px 20px; font-family: 'Barlow', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; display: block; text-align: center; margin-bottom: 10px; }
-.btn-sm { padding: 8px 14px; font-size: 13px; width: auto; display: inline-block; border-radius: 8px; }
+/* Form */
+.field{margin-bottom:12px}
+.field label{display:block;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;background:var(--s3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;padding:11px 13px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+.field textarea{resize:none;min-height:70px}
 
-/* ── Form ── */
-.field { margin-bottom: 14px; }
-.field label { display: block; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
-.field input { width: 100%; background: var(--s3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Barlow', sans-serif; font-size: 16px; padding: 12px 14px; outline: none; transition: border-color .2s; -webkit-appearance: none; }
-.field input:focus { border-color: var(--gold); }
+/* Scanner */
+#scanner-wrap{position:relative;border-radius:12px;overflow:hidden;background:#000;margin-bottom:10px}
+#svid{width:100%;display:block;max-height:320px;object-fit:cover}
+#scvs{display:none}
+.scan-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.scan-fr{width:58%;aspect-ratio:1;position:relative}
+.sc{position:absolute;width:22px;height:22px}
+.sc-tl{top:0;left:0;border-top:3px solid var(--gold);border-left:3px solid var(--gold)}
+.sc-tr{top:0;right:0;border-top:3px solid var(--gold);border-right:3px solid var(--gold)}
+.sc-bl{bottom:0;left:0;border-bottom:3px solid var(--gold);border-left:3px solid var(--gold)}
+.sc-br{bottom:0;right:0;border-bottom:3px solid var(--gold);border-right:3px solid var(--gold)}
+.scan-line{position:absolute;left:0;right:0;height:2px;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:scanline 2s ease-in-out infinite}
+.scan-hint{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);padding:8px;text-align:center;color:var(--gold);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
 
-/* ── Product card ── */
-.p-item { background: var(--s2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
-.p-item.low { border-color: var(--warn); }
-.p-item.out { border-color: var(--red); }
-.p-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-.p-name { font-weight: 600; font-size: 15px; margin-bottom: 3px; }
-.p-id { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); }
-.p-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-.p-chip { background: var(--s3); border-radius: 8px; padding: 8px 12px; }
-.p-chip.gold { border-left: 2px solid var(--gold); }
-.chip-lbl { font-size: 10px; color: var(--muted); margin-bottom: 3px; letter-spacing: 1px; text-transform: uppercase; }
-.chip-lbl.g { color: var(--gold); }
-.chip-val { font-family: 'IBM Plex Mono', monospace; font-size: 14px; }
-.chip-val.g { color: var(--gold); }
-.p-acts { display: flex; gap: 8px; }
-.p-act { flex: 1; background: var(--s3); border: none; color: var(--text); border-radius: 8px; padding: 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Barlow', sans-serif; }
-.p-act.del { color: var(--red); flex: 0 0 auto; padding: 8px 14px; }
+/* Result */
+.res-card{background:var(--s2);border:2px solid var(--gold);border-radius:12px;padding:14px;margin-bottom:10px}
+.res-name{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;margin-bottom:3px}
+.price-box{background:var(--s3);border-radius:10px;padding:16px 14px;margin:10px 0;text-align:center}
 
-/* ── Stats ── */
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.scard { background: var(--s2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
-.slbl { font-size: 10px; color: var(--muted); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
-.sval { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ssub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+/* Cart */
+.cart-card{background:var(--s2);border:1px solid var(--gold);border-radius:12px;padding:13px;margin-bottom:10px}
+.cart-item{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)}
+.cart-item:last-of-type{border-bottom:none}
+.cart-del{background:none;border:none;color:var(--red);font-size:19px;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;padding-top:8px;margin-top:5px;border-top:1px solid var(--border)}
 
-/* ── Sale history ── */
-.sale-item { background: var(--s2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+/* Products */
+.p-item{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:9px}
+.p-item.low{border-color:var(--warn)}.p-item.out{border-color:var(--red)}
+.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:9px 0}
+.p-chip{background:var(--s3);border-radius:8px;padding:7px 11px}
+.p-chip.gold{border-left:2px solid var(--gold)}
+.chip-lbl{font-size:9px;color:var(--muted);margin-bottom:2px;letter-spacing:1px;text-transform:uppercase}
+.chip-lbl.g{color:var(--gold)}
+.chip-val{font-family:'IBM Plex Mono',monospace;font-size:13px}
+.chip-val.g{color:var(--gold)}
+.p-acts{display:flex;gap:7px}
+.p-act{flex:1;background:var(--s3);border:none;color:var(--text);border-radius:8px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif}
+.p-act.del{color:var(--red);flex:0 0 auto;padding:7px 12px}
 
-/* ── Alert ── */
-.alert { border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; font-size: 13px; font-weight: 600; }
-.alert-warn { background: rgba(224,140,48,.1); border: 1px solid var(--warn); color: var(--warn); }
-.alert-red  { background: rgba(201,64,64,.1);  border: 1px solid var(--red);  color: var(--red); }
+/* Stats */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
+.scard{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:13px}
+.slbl{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+.sval{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ssub{font-size:10px;color:var(--muted);margin-top:2px}
 
-/* ── Scanner ── */
-#scanner-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #000; display: none; }
-#scanner-wrap.on { display: block; }
-#svid { width: 100%; display: block; max-height: 350px; object-fit: cover; }
-#scvs { display: none; }
-.scan-ov { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.scan-fr { width: 60%; aspect-ratio: 1; position: relative; }
-.sc { position: absolute; width: 24px; height: 24px; }
-.sc-tl { top: 0; left: 0;    border-top:    3px solid var(--gold); border-left:   3px solid var(--gold); }
-.sc-tr { top: 0; right: 0;   border-top:    3px solid var(--gold); border-right:  3px solid var(--gold); }
-.sc-bl { bottom: 0; left: 0; border-bottom: 3px solid var(--gold); border-left:   3px solid var(--gold); }
-.sc-br { bottom: 0; right: 0;border-bottom: 3px solid var(--gold); border-right:  3px solid var(--gold); }
-.scan-line { position: absolute; left: 0; right: 0; height: 2px; background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: scanline 2s ease-in-out infinite; }
-.scan-hint { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,.75); padding: 12px; text-align: center; color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; animation: blink 1.5s infinite; }
+/* Sale history */
+.sale-item{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:flex-start}
 
-/* ── Scan result ── */
-.res-card { background: var(--s2); border: 2px solid var(--gold); border-radius: 12px; padding: 16px; margin-bottom: 10px; }
-.res-name { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 4px; }
-.price-box { background: var(--s3); border-radius: 10px; padding: 20px 14px; margin: 12px 0; text-align: center; }
-.sale-type-label { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-.price-big { font-family: 'IBM Plex Mono', monospace; font-size: 40px; font-weight: 600; color: var(--gold); }
+/* Expense item */
+.exp-item{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
 
-/* ── Success ── */
-.success { text-align: center; padding: 60px 20px; animation: popIn .3s ease; }
-.suc-icon { width: 80px; height: 80px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+/* Alerts */
+.alert{border-radius:10px;padding:11px 14px;margin-bottom:9px;font-size:13px;font-weight:600}
+.alert-warn{background:rgba(224,140,48,.1);border:1px solid var(--warn);color:var(--warn)}
+.alert-red{background:rgba(201,64,64,.1);border:1px solid var(--red);color:var(--red)}
 
-/* ── Empty ── */
-.empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+/* Analytics tabs */
+.atab{flex:1;background:var(--s3);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;padding:9px 4px;cursor:pointer}
+.atab.active{background:var(--gold);border-color:var(--gold);color:#000}
 
-/* ── Modals ── */
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 200; align-items: flex-end; }
-.modal.on { display: flex; }
-.modal.center { align-items: center; padding: 20px; }
-.msheet { background: var(--s2); border-radius: 16px 16px 0 0; border: 1px solid var(--border); border-bottom: none; padding: 24px 20px 36px; width: 100%; max-height: 90dvh; overflow-y: auto; }
-.msheet.ctr { border-radius: 16px; border: 1px solid var(--border); border-bottom: 1px solid var(--border); max-width: 300px; margin: 0 auto; text-align: center; }
-.mtitle { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 18px; }
-#qr-box { background: #fff; padding: 16px; border-radius: 12px; display: inline-block; margin-bottom: 12px; }
+/* Chart */
+.chart-wrap{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:13px;overflow-x:auto}
+.chart-title{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
 
-/* ── Toast ── */
-#toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-10px); padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 500; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .2s, transform .2s; }
-#toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* Top products */
+.top-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.top-item:last-child{border-bottom:none}
+.top-rank{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:var(--border);width:26px;flex-shrink:0;text-align:center}
+.top-rank.r1{color:var(--gold)}.top-rank.r2{color:var(--muted)}.top-rank.r3{color:var(--warn)}
 
-/* ── Analytics tabs ── */
-.atab { flex: 1; background: var(--s3); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 700; padding: 10px 6px; cursor: pointer; letter-spacing: .5px; }
-.atab.active { background: var(--gold); border-color: var(--gold); color: #000; }
+/* Month comparison */
+.cmp-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.cmp-row:last-child{border-bottom:none}
 
-/* ── Cart ── */
-.cart-bar { background: var(--s2); border: 1px solid var(--gold); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
-.cart-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
-.cart-item-name { font-size: 13px; color: var(--text); flex: 1; }
-.cart-item-price { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--gold); margin-left: 8px; }
-.cart-item-del { background: none; border: none; color: var(--red); font-size: 18px; cursor: pointer; padding: 0 4px; line-height: 1; }
-.cart-total { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: 6px; border-top: 1px solid var(--border); }
-.cart-total-lbl { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-.cart-total-val { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600; color: var(--gold); }
+/* Modals */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:flex-end}
+.modal.on{display:flex}
+.modal.center{align-items:center;justify-content:center;padding:16px}
+.msheet{background:var(--s2);border-radius:16px 16px 0 0;border:1px solid var(--border);padding:22px 18px 34px;width:100%;max-height:92dvh;overflow-y:auto}
+.msheet.ctr{border-radius:14px;max-width:320px;width:100%;text-align:center}
+.mtitle{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;margin-bottom:16px}
+#qr-box{background:#fff;padding:14px;border-radius:12px;display:inline-block;margin-bottom:10px}
 
-/* ── Animations ── */
-@keyframes fadeUp  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes popIn   { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
-@keyframes scanline { 0%, 100% { top: 10%; } 50% { top: 85%; } }
-@keyframes blink   { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+/* Toast */
+#toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-10px);padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s,transform .2s;color:#fff}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Success */
+.success{text-align:center;padding:44px 18px}
+.suc-icon{width:76px;height:76px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+
+/* Empty */
+.empty{text-align:center;padding:44px 18px;color:var(--muted)}
+
+/* Section title */
+.sec-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scanline{0%,100%{top:10%}50%{top:85%}}
 </style>
 </head>
 <body>
@@ -160,127 +168,155 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
       <div class="logo">HUB<span>SALES</span></div>
       <div class="logo-sub">Учёт продаж</div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center">
-    <button id="hdr-add" class="btn btn-gold btn-sm" onclick="openAddProduct()" style="display:none">+ Товар</button>
-    <button id="hdr-lock" onclick="lockApp()" style="display:none;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--muted);font-size:18px" title="Заблокировать">&#128274;</button>
-  </div>
+    <div style="display:flex;gap:7px;align-items:center">
+      <button id="hdr-add"  class="btn btn-gold btn-sm" onclick="openAddProduct()" style="display:none">+ Товар</button>
+      <button id="hdr-exp"  class="btn btn-gold btn-sm" onclick="openAddExpense()"  style="display:none">+ Расход</button>
+      <button id="hdr-lock" class="btn-icon" onclick="lockApp()" style="display:none">&#128274;</button>
+    </div>
   </div>
 
   <div id="content">
 
-    <!-- ══ СКАНЕР ══ -->
+    <!-- ═══ СКАНЕР ═══ -->
     <div id="view-scan" class="view active">
-
-      <div id="scan-start" style="text-align:center; padding:48px 20px">
-        <div style="width:88px;height:88px;border:2px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8">
-            <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/>
-            <rect x="7" y="7" width="10" height="10" rx="1.5"/>
-            <rect x="9.5" y="9.5" width="5" height="5" rx=".5" fill="var(--gold)" stroke="none"/>
-          </svg>
-        </div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;letter-spacing:1px;margin-bottom:8px">СКАНИРОВАТЬ ТОВАР</div>
-        <div style="color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:32px">Наведите камеру на QR-код,<br>наклеенный на товар</div>
-        <button class="btn btn-gold" onclick="startScan()" style="max-width:300px;margin:0 auto">Открыть камеру</button>
-        <div style="margin-top:12px">
-          <button class="btn btn-ghost" onclick="manualInput()" style="max-width:300px;margin:0 auto;padding:10px;font-size:13px">Ввести код вручную</button>
-        </div>
-      </div>
-
-      <div id="scanner-wrap">
-        <video id="svid" autoplay muted playsinline></video>
-        <canvas id="scvs"></canvas>
-        <div class="scan-ov">
-          <div class="scan-fr">
-            <div class="sc sc-tl"></div><div class="sc sc-tr"></div>
-            <div class="sc sc-bl"></div><div class="sc sc-br"></div>
-            <div class="scan-line"></div>
+      <div id="scan-start">
+        <div style="text-align:center;padding:36px 18px">
+          <div style="width:80px;height:80px;border:2px solid var(--border);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8">
+              <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/>
+              <rect x="7" y="7" width="10" height="10" rx="1.5"/>
+              <rect x="9.5" y="9.5" width="5" height="5" rx=".5" fill="var(--gold)" stroke="none"/>
+            </svg>
           </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:1px;margin-bottom:7px">СКАНИРОВАТЬ ТОВАР</div>
+          <div style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:26px">Наведите камеру на QR-код,<br>наклеенный на товар</div>
+          <button class="btn btn-gold mb10" onclick="startScan()">Открыть камеру</button>
+          <button class="btn btn-ghost" onclick="openManual()" style="padding:9px;font-size:13px">Ввести код вручную</button>
         </div>
-        <div class="scan-hint">сканирование qr-кода...</div>
       </div>
-      <div id="scan-btns" style="display:none;text-align:center;margin-top:12px">
+
+      <div id="scan-camera" style="display:none">
+        <div id="scanner-wrap">
+          <video id="svid" autoplay muted playsinline></video>
+          <canvas id="scvs"></canvas>
+          <div class="scan-ov">
+            <div class="scan-fr">
+              <div class="sc sc-tl"></div><div class="sc sc-tr"></div>
+              <div class="sc sc-bl"></div><div class="sc sc-br"></div>
+              <div class="scan-line"></div>
+            </div>
+          </div>
+          <div class="scan-hint">сканирование qr-кода...</div>
+        </div>
         <button class="btn btn-ghost" onclick="stopScan()">Отмена</button>
       </div>
 
       <div id="scan-result" style="display:none">
         <div class="res-card">
-          <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Найден товар</div>
+          <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px">Найден товар</div>
           <div class="res-name" id="r-name"></div>
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:12px" id="r-id"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:9px" id="r-id"></div>
           <div class="price-box">
-            <div class="sale-type-label">Цена продажи</div>
-            <div class="price-big" id="r-sale"></div>
+            <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px">ЦЕНА ПРОДАЖИ</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:600;color:var(--gold)" id="r-sale"></div>
           </div>
-          <div style="color:var(--muted);font-size:12px;text-align:center;margin-bottom:16px">
+          <div style="color:var(--muted);font-size:12px;text-align:center;margin-bottom:13px">
             На складе: <strong id="r-qty" style="font-family:'IBM Plex Mono',monospace"></strong>
           </div>
-          <button class="btn btn-green" onclick="addToCart()" style="margin-bottom:10px">
-            &#43;&nbsp; Добавить в чек
-          </button>
-          <div style="height:1px;background:var(--border);margin:4px 0 10px"></div>
-          <button class="btn" onclick="openCustomPrice()" style="background:var(--s3);border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;width:100%;margin-bottom:10px">
-            &#9998;&nbsp; Другая цена
-          </button>
-          <button class="btn" onclick="confirmWriteoff()" style="background:var(--s3);border:1px solid var(--red);color:var(--red);border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;width:100%;margin-bottom:10px">
-            &#128465;&nbsp; Списать товар
-          </button>
-          <button class="btn btn-ghost" onclick="cancelSale()">Отмена</button>
+          <button class="btn btn-green mb10" onclick="addToCart()">&#43; Добавить в чек</button>
+          <button class="btn btn-ghost mb10" style="font-size:13px;padding:9px" onclick="openCustomPrice()">&#9998; Другая цена</button>
+          <button class="btn mb10" style="background:var(--s3);border:1px solid var(--red);color:var(--red);font-size:13px;padding:9px" onclick="openWriteoff()">&#128465; Списать товар</button>
+          <button class="btn btn-ghost" style="font-size:13px;padding:9px" onclick="cancelResult()">Отмена</button>
         </div>
       </div>
 
-      <!-- Корзина -->
-      <div id="cart-bar" style="display:none">
-        <div class="cart-bar">
-          <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">&#128722; Текущий чек</div>
+      <div id="scan-cart" style="display:none">
+        <div class="cart-card mb10">
+          <div style="font-size:10px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:9px">&#128722; Текущий чек</div>
           <div id="cart-items"></div>
-          <div class="cart-total">
-            <span class="cart-total-lbl">Итого:</span>
-            <span class="cart-total-val" id="cart-total-val"></span>
+          <div class="cart-total-row">
+            <span style="color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Итого:</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--gold)" id="cart-total"></span>
           </div>
         </div>
-        <button class="btn btn-green" onclick="openCheckout()" style="margin-bottom:10px">
-          &#10003;&nbsp; Оформить чек (<span id="cart-count">0</span> товара)
-        </button>
-        <button class="btn btn-ghost" onclick="startScan()" style="margin-bottom:10px">+ Сканировать ещё</button>
-        <button class="btn" onclick="clearCart()" style="background:none;color:var(--red);border:none;padding:8px;font-size:13px;cursor:pointer;width:100%">Очистить чек</button>
+        <button class="btn btn-green mb10" onclick="openCheckout()">&#10003; Оформить чек (<span id="cart-count">0</span> тов.)</button>
+        <button class="btn btn-gold mb10" onclick="startScan()">+ Сканировать ещё</button>
+        <button class="btn btn-ghost mb10" style="font-size:13px;padding:9px" onclick="openManual()">Ввести код вручную</button>
+        <button class="btn" style="background:none;color:var(--red);border:none;padding:7px;font-size:13px;cursor:pointer" onclick="clearCart()">Очистить чек</button>
       </div>
 
       <div id="scan-success" style="display:none">
         <div class="success">
           <div class="suc-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:800;color:var(--green);margin-bottom:8px">ПРОДАНО!</div>
-          <div style="color:var(--muted);font-size:15px" id="suc-info"></div>
-          <div style="margin-top:24px">
-            <button class="btn btn-ghost" onclick="showScanState('start')" style="max-width:220px;margin:0 auto">Следующий товар</button>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:var(--green);margin-bottom:7px">ПРОДАНО!</div>
+          <div style="color:var(--muted);font-size:14px;line-height:1.6" id="suc-info"></div>
+          <div style="margin-top:22px">
+            <button class="btn btn-ghost" onclick="goStart()" style="max-width:200px;margin:0 auto">Следующий клиент</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ══ ТОВАРЫ ══ -->
+    <!-- ═══ ТОВАРЫ ═══ -->
     <div id="view-products" class="view">
       <div id="products-list"></div>
     </div>
 
-    <!-- ══ АНАЛИТИКА ══ -->
+    <!-- ═══ АНАЛИТИКА ═══ -->
     <div id="view-analytics" class="view">
-      <!-- Вкладки -->
-      <div style="display:flex;gap:8px;margin-bottom:16px">
-        <button class="atab active" id="atab-all"     onclick="switchAtab('all')">Всё время</button>
-        <button class="atab"        id="atab-today"   onclick="switchAtab('today')">Сегодня</button>
-        <button class="atab"        id="atab-month"   onclick="switchAtab('month')">Месяц</button>
+      <!-- Вкладки периода -->
+      <div style="display:flex;gap:7px;margin-bottom:14px">
+        <button class="atab active" id="atab-all"   onclick="setAtab('all')">Всё время</button>
+        <button class="atab"        id="atab-today" onclick="setAtab('today')">Сегодня</button>
+        <button class="atab"        id="atab-month" onclick="setAtab('month')">Месяц</button>
       </div>
-      <!-- Выбор месяца (только при вкладке "Месяц") -->
-      <div id="month-picker" style="display:none;margin-bottom:14px;display:none">
-        <select id="month-select" onchange="renderAnalytics()" style="width:100%;background:var(--s3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;padding:10px 14px;outline:none;-webkit-appearance:none"></select>
+      <div id="month-picker" style="display:none;margin-bottom:13px">
+        <div class="field"><select id="month-select" onchange="renderAnalytics()"></select></div>
       </div>
+
+      <!-- Статы -->
       <div class="stat-grid" id="stats-grid"></div>
+
+      <!-- Экспорт -->
+      <button class="btn mb14" style="background:var(--s3);border:1px solid var(--border);color:var(--text);font-size:13px;padding:10px" onclick="exportCSV()">
+        &#128196; Скачать отчёт Excel / CSV
+      </button>
+
+      <!-- График -->
+      <div class="chart-wrap mb14" id="chart-wrap">
+        <div class="chart-title">ПРОДАЖИ ПО ДНЯМ</div>
+        <div id="chart-area"></div>
+      </div>
+
+      <!-- Сравнение месяцев -->
+      <div class="chart-wrap mb14" id="cmp-wrap" style="display:none">
+        <div class="chart-title">СРАВНЕНИЕ С ПРОШЛЫМ МЕСЯЦЕМ</div>
+        <div id="cmp-area"></div>
+      </div>
+
+      <!-- Топ товаров -->
+      <div class="chart-wrap mb14">
+        <div class="chart-title">ТОП ТОВАРОВ</div>
+        <div id="top-area"></div>
+      </div>
+
+      <!-- Алерты и блок барбера -->
       <div id="alerts-area"></div>
-      <div id="analytics-section-title" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px">История продаж</div>
+
+      <!-- История продаж -->
+      <div class="sec-title" id="sales-title">История продаж</div>
       <div id="sales-list"></div>
+    </div>
+
+    <!-- ═══ РАСХОДЫ ═══ -->
+    <div id="view-expenses" class="view">
+      <!-- Итог расходов -->
+      <div id="exp-summary" style="margin-bottom:13px"></div>
+      <!-- Список -->
+      <div class="sec-title">Все расходы</div>
+      <div id="exp-list"></div>
     </div>
 
   </div>
@@ -300,133 +336,82 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
       <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
       Аналитика
     </button>
+    <button class="nbtn" id="nav-expenses" onclick="switchView('expenses')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Расходы
+    </button>
   </div>
 </div>
 
-<!-- MODAL: Добавить/Редактировать -->
+<!-- MODAL: Добавить/Ред. товар -->
 <div class="modal" id="modal-product" onclick="if(event.target===this)closeModal('modal-product')">
   <div class="msheet">
     <div class="mtitle" id="mp-title">НОВЫЙ ТОВАР</div>
-    <div class="field">
-      <label>Название товара</label>
-      <input id="f-name" type="text" placeholder="Напр: Крем для бритья" autocomplete="off">
-    </div>
-    <div class="field">
-      <label>Количество (шт.)</label>
-      <input id="f-qty" type="number" placeholder="0" inputmode="numeric" min="0">
-    </div>
-    <div class="field">
-      <label>Цена закупки (€)</label>
-      <input id="f-cost" type="number" placeholder="0.00" inputmode="decimal" step="0.01" min="0.01" oninput="previewPrice()">
-    </div>
-    <div id="price-preview" style="display:none;background:var(--s3);border-radius:8px;padding:12px 14px;margin-bottom:18px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
+    <div class="field"><label>Название</label><input id="f-name" type="text" placeholder="Крем для бритья" autocomplete="off"></div>
+    <div class="field"><label>Количество (шт.)</label><input id="f-qty" type="number" placeholder="0" inputmode="numeric" min="0"></div>
+    <div class="field"><label>Цена закупки (€)</label><input id="f-cost" type="number" placeholder="0.00" inputmode="decimal" step="0.01" min="0.01" oninput="previewPrice()"></div>
+    <div id="price-preview" style="display:none;background:var(--s3);border-radius:8px;padding:11px 13px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
         <span style="color:var(--gold);font-size:13px;font-weight:700">Цена продажи:</span>
-        <span style="color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600" id="prev-sale"></span>
+        <span style="color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600" id="prev-sale"></span>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-top:6px">
-        <span style="color:var(--muted);font-size:12px">Прибыль с продажи:</span>
-        <span style="color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:13px" id="prev-profit"></span>
+      <div style="display:flex;justify-content:space-between">
+        <span style="color:var(--muted);font-size:12px">Прибыль:</span>
+        <span style="color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:12px" id="prev-profit"></span>
       </div>
     </div>
-    <div style="display:flex;gap:10px">
+    <div style="display:flex;gap:9px">
       <button class="btn btn-ghost" onclick="closeModal('modal-product')" style="flex:1">Отмена</button>
       <button class="btn btn-gold" onclick="saveProduct()" style="flex:2" id="mp-save-btn">ДОБАВИТЬ</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: QR-код -->
+<!-- MODAL: QR -->
 <div class="modal center" id="modal-qr" onclick="if(event.target===this)closeModal('modal-qr')">
   <div class="msheet ctr">
     <div id="qr-box"><div id="qr-render" style="width:200px;height:200px"></div></div>
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;margin-bottom:4px" id="qr-id"></div>
-    <div style="font-size:14px;color:var(--muted);margin-bottom:6px" id="qr-name"></div>
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--gold);margin-bottom:16px" id="qr-price"></div>
-    <button class="btn btn-gold" onclick="shareQR()" style="margin-bottom:10px">Отправить / Поделиться</button>
-    <button class="btn btn-ghost" onclick="downloadQR()" style="margin-bottom:10px">Скачать PNG</button>
-    <button class="btn" onclick="closeModal('modal-qr')" style="background:none;color:var(--muted);padding:10px">Закрыть</button>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;margin-bottom:3px" id="qr-id"></div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:5px" id="qr-name"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:21px;font-weight:600;color:var(--gold);margin-bottom:13px" id="qr-price"></div>
+    <button class="btn btn-gold mb10" onclick="shareQR()">Отправить / Поделиться</button>
+    <button class="btn btn-ghost mb10" onclick="downloadQR()">Скачать PNG</button>
+    <button class="btn" onclick="closeModal('modal-qr')" style="background:none;color:var(--muted);padding:9px">Закрыть</button>
   </div>
 </div>
 
-<!-- MODAL: Ручной ввод -->
+<!-- MODAL: Ввод кода -->
 <div class="modal center" id="modal-manual" onclick="if(event.target===this)closeModal('modal-manual')">
-  <div class="msheet ctr" style="max-width:320px">
+  <div class="msheet ctr">
     <div class="mtitle">ВВЕСТИ КОД</div>
-    <div class="field" style="text-align:left">
-      <label>ID товара</label>
-      <input id="f-manual" type="text" placeholder="Напр: PRD-CR001" autocomplete="off" autocapitalize="characters">
+    <div class="field" style="text-align:left"><label>ID товара</label>
+      <input id="f-manual" type="text" placeholder="PRD-CR001" autocomplete="off" autocapitalize="characters" onkeydown="if(event.key==='Enter')lookupManual()">
     </div>
-    <div style="display:flex;gap:10px">
+    <div style="display:flex;gap:9px">
       <button class="btn btn-ghost" onclick="closeModal('modal-manual')" style="flex:1">Отмена</button>
       <button class="btn btn-gold" onclick="lookupManual()" style="flex:2">НАЙТИ</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: Пароль -->
-<div class="modal center" id="modal-pin">
-  <div class="msheet ctr" style="max-width:300px">
-    <div style="font-size:36px;margin-bottom:10px">&#128274;</div>
-    <div class="mtitle">ВВЕДИТЕ ПАРОЛЬ</div>
-    <div class="field" style="text-align:left">
-      <label>Пароль</label>
-      <input id="f-pin" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter')checkPin()">
-    </div>
-    <div id="pin-error" style="display:none;color:var(--red);font-size:13px;font-weight:600;margin-bottom:12px;text-align:center">Неверный пароль</div>
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-ghost" onclick="closePin()" style="flex:1">Отмена</button>
-      <button class="btn btn-gold" onclick="checkPin()" style="flex:2">ВОЙТИ</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: Списание -->
-<div class="modal center" id="modal-writeoff" onclick="if(event.target===this)closeModal('modal-writeoff')">
-  <div class="msheet ctr" style="max-width:320px;text-align:left">
-    <div style="font-size:32px;text-align:center;margin-bottom:8px">&#128465;</div>
-    <div class="mtitle" style="text-align:center">СПИСАНИЕ ТОВАРА</div>
-    <div style="background:var(--s3);border-radius:8px;padding:12px 14px;margin-bottom:16px">
-      <div style="font-weight:600;font-size:15px;margin-bottom:4px" id="wo-name"></div>
-      <div style="color:var(--muted);font-size:13px">На складе: <span id="wo-qty" style="font-family:'IBM Plex Mono',monospace;color:var(--text)"></span></div>
-    </div>
-    <div class="field">
-      <label>Причина списания</label>
-      <input id="wo-reason" type="text" placeholder="Напр: брак, истёк срок..." autocomplete="off">
-    </div>
-    <div style="font-size:12px;color:var(--warn);margin-bottom:16px">&#9888; Товар будет убран со склада без записи продажи</div>
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-ghost" onclick="closeModal('modal-writeoff')" style="flex:1">Отмена</button>
-      <button class="btn" onclick="doWriteoff()" style="flex:2;background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer">СПИСАТЬ</button>
-    </div>
-  </div>
-</div>
-
 <!-- MODAL: Другая цена -->
 <div class="modal center" id="modal-custprice" onclick="if(event.target===this)closeModal('modal-custprice')">
-  <div class="msheet ctr" style="max-width:320px;text-align:left">
-    <div style="font-size:32px;text-align:center;margin-bottom:8px">&#9998;</div>
-    <div class="mtitle" style="text-align:center">ДРУГАЯ ЦЕНА</div>
-    <div style="background:var(--s3);border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
-      <span style="color:var(--muted);font-size:13px">Стандартная цена:</span>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:15px" id="cp-standard"></span>
+  <div class="msheet ctr">
+    <div class="mtitle">ДРУГАЯ ЦЕНА</div>
+    <div style="background:var(--s3);border-radius:8px;padding:9px 13px;margin-bottom:13px;display:flex;justify-content:space-between">
+      <span style="color:var(--muted);font-size:13px">Стандартная:</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:14px" id="cp-standard"></span>
     </div>
-    <div class="field">
-      <label>Новая цена (€)</label>
-      <input id="cp-price" type="number" placeholder="0.00" inputmode="decimal" step="0.01" min="0.01"
-        onkeydown="if(event.key==='Enter')doCustomSale('regular')"
-        oninput="updateCustomPreview()">
+    <div class="field" style="text-align:left"><label>Новая цена (€)</label>
+      <input id="cp-price" type="number" placeholder="0.00" inputmode="decimal" step="0.01" min="0.01" oninput="previewCustom()" onkeydown="if(event.key==='Enter')addToCartCustom()">
     </div>
-    <div id="cp-preview" style="display:none;background:var(--s3);border-radius:8px;padding:10px 14px;margin-bottom:14px">
+    <div id="cp-preview" style="display:none;background:var(--s3);border-radius:8px;padding:9px 13px;margin-bottom:13px">
       <div style="display:flex;justify-content:space-between">
-        <span style="color:var(--muted);font-size:13px">Прибыль с продажи:</span>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:14px" id="cp-profit"></span>
+        <span style="color:var(--muted);font-size:12px">Прибыль:</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13px" id="cp-profit"></span>
       </div>
     </div>
-    <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;margin-bottom:10px">Тип продажи:</div>
-    <button class="btn btn-green" onclick="addToCartFromCustom()" style="margin-bottom:10px">
-      &#43;&nbsp; Добавить в чек с этой ценой
-    </button>
+    <button class="btn btn-green mb10" onclick="addToCartCustom()">&#43; Добавить в чек</button>
     <button class="btn btn-ghost" onclick="closeModal('modal-custprice')">Отмена</button>
   </div>
 </div>
@@ -435,39 +420,84 @@ html, body { background: var(--bg); color: var(--text); font-family: 'Barlow', s
 <div class="modal" id="modal-checkout" onclick="if(event.target===this)closeModal('modal-checkout')">
   <div class="msheet">
     <div class="mtitle">&#128722; ОФОРМИТЬ ЧЕК</div>
-    <div id="checkout-items" style="margin-bottom:14px"></div>
-    <div style="background:var(--s3);border-radius:10px;padding:14px;margin-bottom:18px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="color:var(--gold);font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px">Итого к оплате:</span>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:var(--gold)" id="checkout-total"></span>
-      </div>
+    <div id="checkout-items" class="mb12"></div>
+    <div style="background:var(--s3);border-radius:10px;padding:13px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--gold);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:1px">Итого:</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;color:var(--gold)" id="checkout-total"></span>
     </div>
-    <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;margin-bottom:10px">Тип продажи:</div>
-    <button class="btn btn-green" onclick="confirmCheckout('regular')" style="margin-bottom:10px">
-      &#10003;&nbsp; Обычная продажа
-    </button>
-    <button class="btn-barber" onclick="confirmCheckout('barber')" style="margin-bottom:12px">
-      &#9988;&nbsp; Продажа от Барбера &nbsp;<span style="font-size:12px;opacity:.8">(−1 € барберу)</span>
-    </button>
+    <!-- Заметка -->
+    <div class="field mb14"><label>Заметка (необязательно)</label>
+      <textarea id="checkout-note" placeholder="Постоянный клиент, по акции, скидка..."></textarea>
+    </div>
+    <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;margin-bottom:9px">Тип продажи:</div>
+    <button class="btn btn-green mb10" onclick="confirmCheckout('regular')">&#10003; Обычная продажа</button>
+    <button class="btn-barber mb12" onclick="confirmCheckout('barber')">&#9988; Продажа от Барбера &nbsp;<span style="font-size:11px;opacity:.8">(−1€ барберу)</span></button>
     <button class="btn btn-ghost" onclick="closeModal('modal-checkout')">Отмена</button>
+  </div>
+</div>
+
+<!-- MODAL: Списание -->
+<div class="modal center" id="modal-writeoff" onclick="if(event.target===this)closeModal('modal-writeoff')">
+  <div class="msheet ctr">
+    <div style="font-size:30px;margin-bottom:7px">&#128465;</div>
+    <div class="mtitle">СПИСАНИЕ</div>
+    <div style="background:var(--s3);border-radius:8px;padding:9px 13px;margin-bottom:13px;text-align:left">
+      <div style="font-weight:600;font-size:14px;margin-bottom:2px" id="wo-name"></div>
+      <div style="color:var(--muted);font-size:12px">На складе: <span id="wo-qty" style="font-family:'IBM Plex Mono',monospace;color:var(--text)"></span></div>
+    </div>
+    <div class="field" style="text-align:left"><label>Причина</label>
+      <input id="wo-reason" type="text" placeholder="Брак, истёк срок...">
+    </div>
+    <div style="font-size:11px;color:var(--warn);margin-bottom:13px">&#9888; Без записи продажи</div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-writeoff')" style="flex:1">Отмена</button>
+      <button class="btn btn-red" onclick="doWriteoff()" style="flex:2">СПИСАТЬ</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Добавить расход -->
+<div class="modal" id="modal-expense" onclick="if(event.target===this)closeModal('modal-expense')">
+  <div class="msheet">
+    <div class="mtitle" id="exp-title">НОВЫЙ РАСХОД</div>
+    <div class="field"><label>Название</label><input id="e-name" type="text" placeholder="Закупка товаров, аренда, расходники..."></div>
+    <div class="field"><label>Сумма (€)</label><input id="e-amount" type="number" placeholder="0.00" inputmode="decimal" step="0.01" min="0.01"></div>
+    <div class="field"><label>Дата</label><input id="e-date" type="date"></div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-expense')" style="flex:1">Отмена</button>
+      <button class="btn btn-gold" onclick="saveExpense()" style="flex:2" id="exp-save-btn">ДОБАВИТЬ</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Пароль -->
+<div class="modal center" id="modal-pin">
+  <div class="msheet ctr">
+    <div style="font-size:34px;margin-bottom:7px">&#128274;</div>
+    <div class="mtitle">ВВЕДИТЕ ПАРОЛЬ</div>
+    <div class="field" style="text-align:left"><label>Пароль</label>
+      <input id="f-pin" type="password" placeholder="••••••" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter')checkPin()">
+    </div>
+    <div id="pin-error" style="display:none;color:var(--red);font-size:13px;font-weight:600;margin-bottom:9px">Неверный пароль</div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-ghost" onclick="closePin()" style="flex:1">Отмена</button>
+      <button class="btn btn-gold" onclick="checkPin()" style="flex:2">ВОЙТИ</button>
+    </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
-<!-- Firebase SDK -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-<!-- QR Scanner (async — не блокирует загрузку) -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" async></script>
-<!-- QR Generator (async — не блокирует загрузку) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" async></script>
 
 <script>
-// ═══════════════════════════════════════════════════════
-//  КОНФИГ FIREBASE
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+// FIREBASE
+// ═══════════════════════════════════════════
 var firebaseConfig = {
   apiKey:            "AIzaSyC8_WY63Ln-1ao28a7FE-Dw1wIHgiWeCdc",
   authDomain:        "hubsales-c377b.firebaseapp.com",
@@ -476,866 +506,813 @@ var firebaseConfig = {
   messagingSenderId: "63780907493",
   appId:             "1:63780907493:web:381c65efecf74d80bfe70c"
 };
-// ═══════════════════════════════════════════════════════
-
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
-// ── Состояние ──────────────────────────────────────────
-var ST = { products: [], sales: [] };
-var cart = []; // [{product, price, customPrice}]
-var curView    = 'scan';
-var editId     = null;
-var curProduct = null;
-var curQRP     = null;
-var camStream  = null;
-var rafId      = null;
-var scanOn     = false;
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+var ST          = { products: [], sales: [], expenses: [] };
+var cart        = [];
+var curProduct  = null;
+var curQRP      = null;
+var curView     = 'scan';
+var editId      = null;
+var editExpId   = null;
+var pinUnlocked = false;
+var pinTarget   = null;
+var PIN         = '322952';
+var camStream   = null;
+var rafId       = null;
+var scanOn      = false;
+var curAtab     = 'all';
 
-// ── Утилиты ────────────────────────────────────────────
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
 function newId()   { return 'PRD-' + Math.random().toString(36).slice(2,10).toUpperCase(); }
 function saleUid() { return 'SL-'  + Date.now().toString(36).toUpperCase(); }
-
-function calcSale(cost) {
-  // закупка × 1.21 (НДС) × 2 (наценка 100%) = × 2.42
-  return Math.round(cost * 2.42 * 100) / 100;
-}
-
-function fmt(n) {
-  return (Math.round(n * 100) / 100).toFixed(2) + ' \u20AC';
-}
-
+function expUid()  { return 'EX-'  + Date.now().toString(36).toUpperCase(); }
+function calcSale(c) { return Math.round(c * 2.42 * 100) / 100; }
+function fmt(n) { return (Math.round(n * 100) / 100).toFixed(2) + ' \u20AC'; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtDate(iso) {
   var d = new Date(iso);
-  return d.getDate().toString().padStart(2,'0') + '.'
-       + (d.getMonth()+1).toString().padStart(2,'0')
-       + '  ' + d.getHours().toString().padStart(2,'0')
-       + ':' + d.getMinutes().toString().padStart(2,'0');
+  return d.getDate().toString().padStart(2,'0') + '.' + (d.getMonth()+1).toString().padStart(2,'0')
+    + '\u2002' + d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
 }
-
-function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function fmtDateShort(iso) {
+  var d = new Date(iso);
+  return d.getDate().toString().padStart(2,'0') + '.' + (d.getMonth()+1).toString().padStart(2,'0');
 }
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function thisMonth() { var n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
+function prevMonth() { var n=new Date(); n.setMonth(n.getMonth()-1); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
 
-// ── Toast ───────────────────────────────────────────────
-var toastTimer;
+var _toastT;
 function toast(msg, ok) {
   var t = document.getElementById('toast');
-  t.textContent  = msg;
-  t.style.background = (ok === false) ? 'var(--red)' : 'var(--green)';
-  t.style.color  = '#fff';
+  t.textContent = msg;
+  t.style.background = ok===false ? 'var(--red)' : 'var(--green)';
   t.classList.add('on');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 2600);
+  clearTimeout(_toastT);
+  _toastT = setTimeout(function(){ t.classList.remove('on'); }, 2600);
 }
 
-// ── Другая цена ────────────────────────────────────────
-function openCustomPrice() {
-  if (!curProduct) return;
-  // Требуем пароль перед изменением цены
-  pinTarget = '__custprice__';
-  document.getElementById('f-pin').value = '';
-  document.getElementById('pin-error').style.display = 'none';
-  openModal('modal-pin');
-  setTimeout(function(){ document.getElementById('f-pin').focus(); }, 200);
-}
-
-function _openCustomPriceModal() {
-  var p = curProduct;
-  if (!p) return;
-  document.getElementById('cp-standard').textContent = fmt(p.sale);
-  document.getElementById('cp-price').value = '';
-  document.getElementById('cp-preview').style.display = 'none';
-  openModal('modal-custprice');
-  setTimeout(function(){ document.getElementById('cp-price').focus(); }, 200);
-}
-
-function updateCustomPreview() {
-  var price = parseFloat(document.getElementById('cp-price').value);
-  var pp = document.getElementById('cp-preview');
-  if (!curProduct || isNaN(price) || price <= 0) { pp.style.display = 'none'; return; }
-  var profit = Math.round((price - curProduct.cost) * 100) / 100;
-  var el = document.getElementById('cp-profit');
-  el.textContent = (profit >= 0 ? '+' : '') + fmt(profit);
-  el.style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
-  pp.style.display = 'block';
-}
-
-function doCustomSale(type) {
-  if (!curProduct) return;
-  var customPrice = parseFloat(document.getElementById('cp-price').value);
-  if (isNaN(customPrice) || customPrice <= 0) {
-    toast('Введите корректную цену', false); return;
-  }
-
-  var p = null;
-  for (var i = 0; i < ST.products.length; i++) {
-    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
-  }
-  if (!p || p.quantity <= 0) {
-    toast('Товар закончился!', false); cancelSale(); return;
-  }
-
-  var isBarber         = (type === 'barber');
-  var barberCommission = isBarber ? 1.00 : 0;
-  var grossProfit      = Math.round((customPrice - p.cost) * 100) / 100;
-  var netProfit        = Math.round((grossProfit - barberCommission) * 100) / 100;
-
-  var sale = {
-    id:               saleUid(),
-    productId:        p.id,
-    name:             p.name,
-    cost:             p.cost,
-    sale:             customPrice,
-    standardSale:     p.sale,
-    profit:           grossProfit,
-    barberCommission: barberCommission,
-    netProfit:        netProfit,
-    saleType:         isBarber ? 'barber' : 'regular',
-    customPrice:      true,
-    ts:               new Date().toISOString()
-  };
-
-  var batch = db.batch();
-  batch.update(db.collection('products').doc(p.id), { quantity: p.quantity - 1 });
-  batch.set(db.collection('sales').doc(sale.id), sale);
-  batch.commit()
-    .then(function() {
-      closeModal('modal-custprice');
-      var label = isBarber ? ' &#9988; Барбер' : '';
-      document.getElementById('suc-info').innerHTML = esc(p.name) + ' — ' + fmt(customPrice) + label;
-      showScanState('success');
-      curProduct = null;
-    })
-    .catch(function() { toast('Ошибка записи. Проверьте интернет.', false); });
-}
-
-// ── Корзина (чек) ─────────────────────────────────────────
-function addToCart() {
-  if (!curProduct) return;
-  var p = null;
-  for (var i = 0; i < ST.products.length; i++) {
-    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
-  }
-  if (!p) return;
-  if (p.quantity <= 0) { toast('Товар закончился на складе!', false); return; }
-
-  cart.push({ product: p, price: p.sale, customPrice: false });
-  curProduct = null;
-  renderCart();
-  showScanState('start');
-  toast('Добавлено в чек: ' + p.name);
-}
-
-function addToCartFromCustom() {
-  var price = parseFloat(document.getElementById('cp-price').value);
-  if (isNaN(price) || price <= 0) { toast('Введите корректную цену', false); return; }
-  addToCartCustom(price);
-}
-
-function addToCartCustom(price) {
-  if (!curProduct) return;
-  var p = null;
-  for (var i = 0; i < ST.products.length; i++) {
-    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
-  }
-  if (!p) return;
-  cart.push({ product: p, price: price, customPrice: true });
-  curProduct = null;
-  renderCart();
-  closeModal('modal-custprice');
-  showScanState('start');
-  toast('Добавлено в чек: ' + p.name);
-}
-
-function removeFromCart(idx) {
-  cart.splice(idx, 1);
-  renderCart();
-  if (cart.length === 0) showScanState('start');
-  else showScanState('start');
-}
-
-function clearCart() {
-  if (!confirm('Очистить весь чек?')) return;
-  cart = [];
-  showScanState('start');
-}
-
-function renderCart() {
-  var total = cart.reduce(function(a, x){ return a + x.price; }, 0);
-  document.getElementById('cart-count').textContent = cart.length;
-  document.getElementById('cart-total-val').textContent = fmt(total);
-  document.getElementById('cart-items').innerHTML = cart.map(function(item, i) {
-    var customMark = item.customPrice ? ' <span style="font-size:10px;color:var(--green)">&#9998;</span>' : '';
-    return '<div class="cart-row">'
-      + '<span class="cart-item-name">' + esc(item.product.name) + customMark + '</span>'
-      + '<span class="cart-item-price">' + fmt(item.price) + '</span>'
-      + '<button class="cart-item-del" onclick="removeFromCart(' + i + ')">&#215;</button>'
-      + '</div>';
-  }).join('');
-}
-
-function openCheckout() {
-  if (cart.length === 0) return;
-  var total = cart.reduce(function(a, x){ return a + x.price; }, 0);
-  document.getElementById('checkout-total').textContent = fmt(total);
-  document.getElementById('checkout-items').innerHTML = cart.map(function(item) {
-    var customMark = item.customPrice ? ' <span style="font-size:10px;color:var(--green)">&#9998;</span>' : '';
-    return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">'
-      + '<span style="font-size:14px;color:var(--text)">' + esc(item.product.name) + customMark + '</span>'
-      + '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:14px;color:var(--gold)">' + fmt(item.price) + '</span>'
-      + '</div>';
-  }).join('');
-  openModal('modal-checkout');
-}
-
-function confirmCheckout(type) {
-  if (cart.length === 0) return;
-  var isBarber         = (type === 'barber');
-  var barberCommission = isBarber ? 1.00 : 0;
-  var batch = db.batch();
-
-  cart.forEach(function(item) {
-    var p = item.product;
-    // Find current quantity
-    var current = null;
-    for (var i = 0; i < ST.products.length; i++) {
-      if (ST.products[i].id === p.id) { current = ST.products[i]; break; }
-    }
-    if (!current || current.quantity <= 0) return;
-
-    var grossProfit = Math.round((item.price - p.cost) * 100) / 100;
-    var netProfit   = Math.round((grossProfit - barberCommission) * 100) / 100;
-
-    var sale = {
-      id:               saleUid(),
-      productId:        p.id,
-      name:             p.name,
-      cost:             p.cost,
-      sale:             item.price,
-      standardSale:     p.sale,
-      profit:           grossProfit,
-      barberCommission: barberCommission,
-      netProfit:        netProfit,
-      saleType:         isBarber ? 'barber' : 'regular',
-      customPrice:      item.customPrice,
-      ts:               new Date().toISOString()
-    };
-
-    batch.update(db.collection('products').doc(p.id), { quantity: current.quantity - 1 });
-    batch.set(db.collection('sales').doc(sale.id), sale);
-  });
-
-  batch.commit()
-    .then(function() {
-      var total = cart.reduce(function(a, x){ return a + x.price; }, 0);
-      var cnt   = cart.length;
-      closeModal('modal-checkout');
-      cart = [];
-      var label = isBarber ? ' &#9988; Барбер' : '';
-      document.getElementById('suc-info').innerHTML =
-        cnt + ' товара — ' + fmt(total) + label;
-      showScanState('success');
-    })
-    .catch(function() { toast('Ошибка записи. Проверьте интернет.', false); });
-}
-
-// ── Firebase: слушатели реального времени ──────────────
+// ═══════════════════════════════════════════
+// FIREBASE LISTENERS
+// ═══════════════════════════════════════════
 function initFirebase() {
-  // Товары
   db.collection('products').onSnapshot(function(snap) {
     ST.products = snap.docs.map(function(d){ return d.data(); });
     updateBadge();
-    if (curView === 'products') renderProducts();
+    if (curView === 'products')  renderProducts();
     if (curView === 'analytics') renderAnalytics();
-
-    // Первый запуск: добавить демо-товары если база пустая
-    if (snap.empty && !window._demoDone) {
-      window._demoDone = true;
-      var batch = db.batch();
-      [
-        { id:'PRD-CR001', name:'Крем для бритья Premium', quantity:15, cost:8.50,  sale:calcSale(8.50)  },
-        { id:'PRD-PM001', name:'Помада матовая Strong',   quantity:8,  cost:12.00, sale:calcSale(12.00) },
-        { id:'PRD-SH001', name:'Шампунь барбера 250ml',   quantity:20, cost:6.00,  sale:calcSale(6.00)  },
-      ].forEach(function(p){ batch.set(db.collection('products').doc(p.id), p); });
-      batch.commit();
+    if (snap.empty && !window._demo) {
+      window._demo = true;
+      var b = db.batch();
+      [{id:'PRD-CR001',name:'Крем для бритья Premium',quantity:15,cost:8.50},
+       {id:'PRD-PM001',name:'Помада матовая Strong',  quantity:8, cost:12.00},
+       {id:'PRD-SH001',name:'Шампунь барбера 250ml',  quantity:20,cost:6.00}
+      ].forEach(function(p){ p.sale=calcSale(p.cost); b.set(db.collection('products').doc(p.id),p); });
+      b.commit();
     }
-  }, function(err){ console.warn('products listener:', err); });
+  }, function(e){ console.warn('products:',e); });
 
-  // Продажи (новые сначала)
   db.collection('sales').orderBy('ts','desc').onSnapshot(function(snap) {
     ST.sales = snap.docs.map(function(d){ return d.data(); });
     if (curView === 'analytics') renderAnalytics();
-  }, function(err){ console.warn('sales listener:', err); });
+  }, function(e){ console.warn('sales:',e); });
+
+  db.collection('expenses').orderBy('date','desc').onSnapshot(function(snap) {
+    ST.expenses = snap.docs.map(function(d){ return d.data(); });
+    if (curView === 'expenses')  renderExpenses();
+    if (curView === 'analytics') renderAnalytics();
+  }, function(e){ console.warn('expenses:',e); });
 }
 
-// ── Навигация ──────────────────────────────────────────
-var PIN         = '322952';
-var pinUnlocked = false;
-var pinTarget   = null;
-
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
 function switchView(v) {
-  // Защищённые разделы требуют пароль
-  if ((v === 'products' || v === 'analytics') && !pinUnlocked) {
-    pinTarget = v;
-    document.getElementById('f-pin').value = '';
-    document.getElementById('pin-error').style.display = 'none';
-    openModal('modal-pin');
-    setTimeout(function(){ document.getElementById('f-pin').focus(); }, 200);
-    return;
+  if ((v==='products'||v==='analytics'||v==='expenses') && !pinUnlocked) {
+    pinTarget = v; openPinModal(); return;
   }
   stopScan();
   document.querySelectorAll('.view').forEach(function(el){ el.classList.remove('active'); });
   document.querySelectorAll('.nbtn').forEach(function(el){ el.classList.remove('active'); });
-  document.getElementById('view-' + v).classList.add('active');
-  document.getElementById('nav-'  + v).classList.add('active');
-  document.getElementById('hdr-add').style.display  = v === 'products' ? 'inline-block' : 'none';
-  document.getElementById('hdr-lock').style.display = (v === 'products' || v === 'analytics') ? 'inline-block' : 'none';
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('nav-'+v).classList.add('active');
+  document.getElementById('hdr-add').style.display  = v==='products'  ? 'inline-block' : 'none';
+  document.getElementById('hdr-exp').style.display  = v==='expenses'  ? 'inline-block' : 'none';
+  document.getElementById('hdr-lock').style.display = (v==='products'||v==='analytics'||v==='expenses') ? 'inline-block' : 'none';
   curView = v;
-  if (v === 'products') renderProducts();
-  if (v === 'analytics') renderAnalytics();
-}
-
-function checkPin() {
-  var entered = document.getElementById('f-pin').value.trim();
-  if (entered === PIN) {
-    closeModal('modal-pin');
-    if (pinTarget === '__writeoff__') {
-      pinTarget = null;
-      var p = window._writeoffProduct;
-      if (p) {
-        document.getElementById('wo-name').textContent = p.name;
-        document.getElementById('wo-qty').textContent  = p.quantity + ' шт.';
-        document.getElementById('wo-reason').value = '';
-        openModal('modal-writeoff');
-      }
-    } else if (pinTarget === '__custprice__') {
-      pinTarget = null;
-      _openCustomPriceModal();
-    } else {
-      pinUnlocked = true;
-      if (pinTarget) { switchView(pinTarget); pinTarget = null; }
-    }
-  } else {
-    document.getElementById('pin-error').style.display = 'block';
-    document.getElementById('f-pin').value = '';
-    document.getElementById('f-pin').focus();
-  }
-}
-
-function closePin() {
-  closeModal('modal-pin');
-  pinTarget = null;
+  if (v==='products')  renderProducts();
+  if (v==='analytics') renderAnalytics();
+  if (v==='expenses')  renderExpenses();
 }
 
 function lockApp() {
   pinUnlocked = false;
+  ['hdr-add','hdr-exp','hdr-lock'].forEach(function(id){ document.getElementById(id).style.display='none'; });
   switchView('scan');
-  document.getElementById('hdr-lock').style.display = 'none';
-  document.getElementById('hdr-add').style.display  = 'none';
-  toast('Раздел заблокирован');
+  toast('Заблокировано');
 }
 
-// ── Модалки ────────────────────────────────────────────
+// ═══════════════════════════════════════════
+// MODALS & PIN
+// ═══════════════════════════════════════════
 function openModal(id)  { document.getElementById(id).classList.add('on'); }
 function closeModal(id) { document.getElementById(id).classList.remove('on'); }
 
-// ── Состояние экрана сканера ───────────────────────────
-function showScanState(s) {
-  document.getElementById('scan-start').style.display   = s === 'start'   ? 'block' : 'none';
-  document.getElementById('scan-btns').style.display    = s === 'scan'    ? 'block' : 'none';
-  document.getElementById('scan-result').style.display  = s === 'result'  ? 'block' : 'none';
-  document.getElementById('scan-success').style.display = s === 'success' ? 'block' : 'none';
-  // Show cart bar on start/result if cart has items
-  var cartBar = document.getElementById('cart-bar');
-  cartBar.style.display = (cart.length > 0 && (s === 'start' || s === 'result')) ? 'block' : 'none';
-  var sw = document.getElementById('scanner-wrap');
-  if (s === 'scan') sw.classList.add('on'); else sw.classList.remove('on');
-}
-
-// ── Сканер ─────────────────────────────────────────────
-function startScan() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    toast('Камера недоступна. Используйте Chrome.', false);
-    return;
-  }
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
-    .then(function(stream) {
-      camStream = stream;
-      var v = document.getElementById('svid');
-      v.srcObject = stream;
-      v.play().catch(function(){});
-      scanOn = true;
-      showScanState('scan');
-      rafId = requestAnimationFrame(scanFrame);
-    })
-    .catch(function() {
-      toast('Нет доступа к камере. Разрешите в настройках.', false);
-    });
-}
-
-function stopScan() {
-  scanOn = false;
-  if (rafId)     { cancelAnimationFrame(rafId); rafId = null; }
-  if (camStream) { camStream.getTracks().forEach(function(t){ t.stop(); }); camStream = null; }
-  document.getElementById('svid').srcObject = null;
-  if (curView === 'scan') showScanState('start');
-}
-
-function scanFrame() {
-  if (!scanOn) return;
-  var v = document.getElementById('svid');
-  var c = document.getElementById('scvs');
-  if (v.readyState === v.HAVE_ENOUGH_DATA && window.jsQR) {
-    c.width  = v.videoWidth;
-    c.height = v.videoHeight;
-    var ctx = c.getContext('2d');
-    ctx.drawImage(v, 0, 0);
-    var imgData = ctx.getImageData(0, 0, c.width, c.height);
-    var code = window.jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'dontInvert' });
-    if (code && code.data) {
-      var found = null;
-      for (var i = 0; i < ST.products.length; i++) {
-        if (ST.products[i].id === code.data) { found = ST.products[i]; break; }
-      }
-      if (found) { stopScan(); showResult(found); return; }
-    }
-  }
-  rafId = requestAnimationFrame(scanFrame);
-}
-
-function manualInput() {
-  document.getElementById('f-manual').value = '';
-  openModal('modal-manual');
-  setTimeout(function(){ document.getElementById('f-manual').focus(); }, 200);
-}
-
-function lookupManual() {
-  var code = document.getElementById('f-manual').value.trim().toUpperCase();
-  var found = null;
-  for (var i = 0; i < ST.products.length; i++) {
-    if (ST.products[i].id === code) { found = ST.products[i]; break; }
-  }
-  if (found) {
-    closeModal('modal-manual');
-    showResult(found);
-  } else {
-    toast('Товар «' + code + '» не найден', false);
-  }
-}
-
-// ── Показать результат сканирования ───────────────────
-function showResult(p) {
-  curProduct = p;
-  document.getElementById('r-name').textContent = p.name;
-  document.getElementById('r-id').textContent   = p.id;
-  document.getElementById('r-sale').textContent = fmt(p.sale);
-  var qEl = document.getElementById('r-qty');
-  qEl.textContent  = p.quantity + ' шт.';
-  qEl.style.color  = p.quantity === 0 ? 'var(--red)' : p.quantity <= 3 ? 'var(--warn)' : 'var(--green)';
-  showScanState('result');
-}
-
-function cancelSale() { curProduct = null; showScanState('start'); }
-
-// ── Списание товара ────────────────────────────────────
-function confirmWriteoff() {
-  if (!curProduct) return;
-  var p = null;
-  for (var i = 0; i < ST.products.length; i++) {
-    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
-  }
-  if (!p || p.quantity <= 0) {
-    toast('Товар уже закончился на складе!', false);
-    cancelSale();
-    return;
-  }
-
-  // Показать модал подтверждения списания — требует пароль
-  pinTarget = '__writeoff__';
+function openPinModal() {
   document.getElementById('f-pin').value = '';
   document.getElementById('pin-error').style.display = 'none';
   openModal('modal-pin');
   setTimeout(function(){ document.getElementById('f-pin').focus(); }, 200);
-  // Сохраняем продукт для списания после ввода пароля
-  window._writeoffProduct = p;
 }
-
-function doWriteoff() {
-  var p = null;
-  for (var i = 0; i < ST.products.length; i++) {
-    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
-  }
-  if (!p) return;
-
-  var reason = document.getElementById('wo-reason').value.trim() || 'Без причины';
-
-  var wo = {
-    id:        'WO-' + Date.now().toString(36).toUpperCase(),
-    productId: p.id,
-    name:      p.name,
-    reason:    reason,
-    ts:        new Date().toISOString()
-  };
-
-  var batch = db.batch();
-  batch.update(db.collection('products').doc(p.id), { quantity: p.quantity - 1 });
-  batch.set(db.collection('writeoffs').doc(wo.id), wo);
-  batch.commit()
-    .then(function() {
-      closeModal('modal-writeoff');
-      document.getElementById('suc-info').innerHTML = '&#128465; Списано: ' + esc(p.name);
-      showScanState('success');
-      curProduct = null;
-    })
-    .catch(function() { toast('Ошибка. Проверьте интернет.', false); });
-}
-
-// ── Подтвердить продажу ────────────────────────────────
-function confirmSale(type) {
-  if (!curProduct) return;
-
-  var p = null;
-  for (var i = 0; i < ST.products.length; i++) {
-    if (ST.products[i].id === curProduct.id) { p = ST.products[i]; break; }
-  }
-  if (!p || p.quantity <= 0) {
-    toast('Товар закончился на складе!', false);
-    cancelSale();
+function checkPin() {
+  if (document.getElementById('f-pin').value.trim() !== PIN) {
+    document.getElementById('pin-error').style.display = 'block';
+    document.getElementById('f-pin').value = '';
+    document.getElementById('f-pin').focus();
     return;
   }
-
-  var isBarber         = (type === 'barber');
-  var barberCommission = isBarber ? 1.00 : 0;
-  var grossProfit      = Math.round((p.sale - p.cost) * 100) / 100;
-  var netProfit        = Math.round((grossProfit - barberCommission) * 100) / 100;
-
-  var sale = {
-    id:               saleUid(),
-    productId:        p.id,
-    name:             p.name,
-    cost:             p.cost,
-    sale:             p.sale,
-    profit:           grossProfit,
-    barberCommission: barberCommission,
-    netProfit:        netProfit,
-    saleType:         isBarber ? 'barber' : 'regular',
-    ts:               new Date().toISOString()
-  };
-
-  var batch = db.batch();
-  batch.update(db.collection('products').doc(p.id), { quantity: p.quantity - 1 });
-  batch.set(db.collection('sales').doc(sale.id), sale);
-  batch.commit()
-    .then(function() {
-      var label = isBarber ? '&#9988; Продажа от Барбера' : 'Продажа';
-      document.getElementById('suc-info').innerHTML = esc(p.name) + ' — ' + fmt(p.sale) + '<br>' + label;
-      showScanState('success');
-      curProduct = null;
-    })
-    .catch(function() {
-      toast('Ошибка записи. Проверьте интернет.', false);
-    });
-}
-
-// ── Товары: открыть форму ──────────────────────────────
-function openAddProduct() {
-  editId = null;
-  document.getElementById('mp-title').textContent    = 'НОВЫЙ ТОВАР';
-  document.getElementById('mp-save-btn').textContent = 'ДОБАВИТЬ';
-  document.getElementById('f-name').value = '';
-  document.getElementById('f-qty').value  = '';
-  document.getElementById('f-cost').value = '';
-  document.getElementById('price-preview').style.display = 'none';
-  openModal('modal-product');
-  setTimeout(function(){ document.getElementById('f-name').focus(); }, 200);
-}
-
-function openEditProduct(id) {
-  var p = null;
-  for (var i = 0; i < ST.products.length; i++) {
-    if (ST.products[i].id === id) { p = ST.products[i]; break; }
-  }
-  if (!p) return;
-  editId = id;
-  document.getElementById('mp-title').textContent    = 'РЕДАКТИРОВАТЬ';
-  document.getElementById('mp-save-btn').textContent = 'СОХРАНИТЬ';
-  document.getElementById('f-name').value = p.name;
-  document.getElementById('f-qty').value  = p.quantity;
-  document.getElementById('f-cost').value = p.cost;
-  previewPrice();
-  openModal('modal-product');
-}
-
-function previewPrice() {
-  var cost = parseFloat(document.getElementById('f-cost').value);
-  var pp   = document.getElementById('price-preview');
-  if (isNaN(cost) || cost <= 0) { pp.style.display = 'none'; return; }
-  var sale = calcSale(cost);
-  document.getElementById('prev-sale').textContent   = fmt(sale);
-  document.getElementById('prev-profit').textContent = '+' + fmt(sale - cost);
-  pp.style.display = 'block';
-}
-
-function saveProduct() {
-  var name = document.getElementById('f-name').value.trim();
-  var qty  = parseInt(document.getElementById('f-qty').value);
-  var cost = parseFloat(document.getElementById('f-cost').value);
-  if (!name)               { toast('Введите название товара', false);    return; }
-  if (isNaN(qty) || qty<0) { toast('Введите корректное количество', false); return; }
-  if (isNaN(cost)||cost<=0){ toast('Введите корректную цену закупки', false); return; }
-
-  var product = { id: editId || newId(), name: name, quantity: qty, cost: cost, sale: calcSale(cost) };
-  db.collection('products').doc(product.id).set(product)
-    .then(function() {
-      closeModal('modal-product');
-      toast(editId ? 'Товар обновлён' : 'Товар добавлен');
-    })
-    .catch(function() { toast('Ошибка сохранения', false); });
-}
-
-function deleteProduct(id) {
-  if (!confirm('Удалить товар?\n(История продаж сохранится)')) return;
-  db.collection('products').doc(id).delete()
-    .then(function() { toast('Товар удалён'); })
-    .catch(function() { toast('Ошибка удаления', false); });
-}
-
-// ── QR-код ─────────────────────────────────────────────
-function showQR(id) {
-  var p = null;
-  for (var i = 0; i < ST.products.length; i++) {
-    if (ST.products[i].id === id) { p = ST.products[i]; break; }
-  }
-  if (!p) return;
-  curQRP = p;
-  document.getElementById('qr-id').textContent    = p.id;
-  document.getElementById('qr-name').textContent  = p.name;
-  document.getElementById('qr-price').textContent = fmt(p.sale);
-  var container = document.getElementById('qr-render');
-  container.innerHTML = '';
-  if (window.QRCode) {
-    try {
-      new QRCode(container, { text: p.id, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.M });
-    } catch(e) {
-      container.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(p.id) + '&margin=2" width="200" height="200">';
-    }
+  closeModal('modal-pin');
+  if (pinTarget === '__writeoff__') {
+    pinTarget = null;
+    var p = window._wop;
+    if (p) { document.getElementById('wo-name').textContent=p.name; document.getElementById('wo-qty').textContent=p.quantity+' шт.'; document.getElementById('wo-reason').value=''; openModal('modal-writeoff'); }
+  } else if (pinTarget === '__custprice__') {
+    pinTarget = null; _showCustomPrice();
   } else {
-    // QRCode.js ещё грузится — попробуем через 500мс
-    container.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:20px">Загрузка...</div>';
-    setTimeout(function(){ showQR(id); }, 600);
-    return;
+    pinUnlocked = true;
+    if (pinTarget) { var t=pinTarget; pinTarget=null; switchView(t); }
+  }
+}
+function closePin() { closeModal('modal-pin'); pinTarget=null; }
+
+// ═══════════════════════════════════════════
+// SCANNER
+// ═══════════════════════════════════════════
+function showSection(id) {
+  ['scan-start','scan-camera','scan-result','scan-cart','scan-success'].forEach(function(s){
+    document.getElementById(s).style.display = 'none';
+  });
+  document.getElementById(id).style.display = 'block';
+}
+function goStart() { stopScan(); showSection(cart.length > 0 ? 'scan-cart' : 'scan-start'); }
+function startScan() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('Камера недоступна', false); return; }
+  showSection('scan-camera');
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal:'environment' } } })
+    .then(function(stream) {
+      camStream = stream;
+      var v = document.getElementById('svid');
+      v.srcObject = stream; v.play().catch(function(){});
+      scanOn = true;
+      rafId = requestAnimationFrame(scanFrame);
+    })
+    .catch(function() { toast('Нет доступа к камере', false); goStart(); });
+}
+function stopScan() {
+  scanOn = false;
+  if (rafId)     { cancelAnimationFrame(rafId); rafId=null; }
+  if (camStream) { camStream.getTracks().forEach(function(t){ t.stop(); }); camStream=null; }
+  document.getElementById('svid').srcObject = null;
+}
+function scanFrame() {
+  if (!scanOn) return;
+  var v=document.getElementById('svid'), c=document.getElementById('scvs');
+  if (v.readyState>=2 && window.jsQR) {
+    c.width=v.videoWidth; c.height=v.videoHeight;
+    var ctx=c.getContext('2d'); ctx.drawImage(v,0,0);
+    var d=ctx.getImageData(0,0,c.width,c.height);
+    var code=window.jsQR(d.data,d.width,d.height,{inversionAttempts:'dontInvert'});
+    if (code && code.data) {
+      var p=getProduct(code.data);
+      if (p) { stopScan(); showProductResult(p); return; }
+    }
+  }
+  rafId = requestAnimationFrame(scanFrame);
+}
+function openManual() {
+  document.getElementById('f-manual').value='';
+  openModal('modal-manual');
+  setTimeout(function(){ document.getElementById('f-manual').focus(); }, 200);
+}
+function lookupManual() {
+  var code=document.getElementById('f-manual').value.trim().toUpperCase();
+  var p=getProduct(code);
+  if (p) { closeModal('modal-manual'); showProductResult(p); }
+  else toast('Товар «'+code+'» не найден', false);
+}
+function getProduct(id) {
+  for (var i=0;i<ST.products.length;i++) if (ST.products[i].id===id) return ST.products[i];
+  return null;
+}
+function showProductResult(p) {
+  curProduct = p;
+  document.getElementById('r-name').textContent = p.name;
+  document.getElementById('r-id').textContent   = p.id;
+  document.getElementById('r-sale').textContent = fmt(p.sale);
+  var q = document.getElementById('r-qty');
+  q.textContent = p.quantity+' шт.';
+  q.style.color = p.quantity===0?'var(--red)':p.quantity<=3?'var(--warn)':'var(--green)';
+  showSection('scan-result');
+}
+function cancelResult() { curProduct=null; goStart(); }
+
+// ═══════════════════════════════════════════
+// CART
+// ═══════════════════════════════════════════
+function addToCart() {
+  if (!curProduct) return;
+  var p=getProduct(curProduct.id);
+  if (!p||p.quantity<=0) { toast('Товар закончился!',false); return; }
+  cart.push({product:p, price:p.sale, isCustom:false});
+  curProduct=null; renderCart(); showSection('scan-cart');
+  toast('Добавлено: '+p.name);
+}
+function addToCartCustom() {
+  var price=parseFloat(document.getElementById('cp-price').value);
+  if (isNaN(price)||price<=0) { toast('Введите цену',false); return; }
+  if (!curProduct) return;
+  var p=getProduct(curProduct.id);
+  if (!p||p.quantity<=0) { toast('Товар закончился!',false); return; }
+  cart.push({product:p, price:price, isCustom:true});
+  curProduct=null; closeModal('modal-custprice'); renderCart(); showSection('scan-cart');
+  toast('Добавлено: '+p.name);
+}
+function removeFromCart(i) {
+  cart.splice(i,1); renderCart();
+  if (cart.length===0) showSection('scan-start');
+}
+function clearCart() {
+  if (!confirm('Очистить чек?')) return;
+  cart=[]; showSection('scan-start');
+}
+function renderCart() {
+  var total=cart.reduce(function(a,x){return a+x.price;},0);
+  document.getElementById('cart-count').textContent=cart.length;
+  document.getElementById('cart-total').textContent=fmt(total);
+  document.getElementById('cart-items').innerHTML=cart.map(function(item,i){
+    var mark=item.isCustom?'<span style="font-size:9px;color:var(--green)"> &#9998;</span>':'';
+    return '<div class="cart-item">'
+      +'<span style="font-size:12px;flex:1">'+esc(item.product.name)+mark+'</span>'
+      +'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:12px;color:var(--gold);margin:0 7px">'+fmt(item.price)+'</span>'
+      +'<button class="cart-del" onclick="removeFromCart('+i+')">&#215;</button>'
+      +'</div>';
+  }).join('');
+}
+function openCheckout() {
+  if (cart.length===0) return;
+  var total=cart.reduce(function(a,x){return a+x.price;},0);
+  document.getElementById('checkout-total').textContent=fmt(total);
+  document.getElementById('checkout-note').value='';
+  document.getElementById('checkout-items').innerHTML=cart.map(function(item){
+    var mark=item.isCustom?'<span style="font-size:9px;color:var(--green)"> &#9998;</span>':'';
+    return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">'
+      +'<span style="font-size:13px">'+esc(item.product.name)+mark+'</span>'
+      +'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;color:var(--gold)">'+fmt(item.price)+'</span>'
+      +'</div>';
+  }).join('');
+  openModal('modal-checkout');
+}
+function confirmCheckout(type) {
+  if (cart.length===0) return;
+  var isBarber=(type==='barber'), bc=isBarber?1.00:0;
+  var note=document.getElementById('checkout-note').value.trim();
+  var batch=db.batch();
+  cart.forEach(function(item){
+    var p=getProduct(item.product.id);
+    if (!p||p.quantity<=0) return;
+    var gp=Math.round((item.price-p.cost)*100)/100;
+    var np=Math.round((gp-bc)*100)/100;
+    var sale={
+      id:saleUid(),productId:p.id,name:p.name,cost:p.cost,
+      sale:item.price,standardSale:p.sale,profit:gp,
+      barberCommission:bc,netProfit:np,
+      saleType:isBarber?'barber':'regular',
+      customPrice:item.isCustom,
+      note:note,
+      ts:new Date().toISOString()
+    };
+    batch.update(db.collection('products').doc(p.id),{quantity:p.quantity-1});
+    batch.set(db.collection('sales').doc(sale.id),sale);
+  });
+  batch.commit()
+    .then(function(){
+      var total=cart.reduce(function(a,x){return a+x.price;},0);
+      var cnt=cart.length;
+      var label=isBarber?' &#9988; Барбер':'';
+      closeModal('modal-checkout');
+      cart=[];
+      document.getElementById('suc-info').innerHTML=cnt+' товара — '+fmt(total)+label+(note?'<br><span style="font-size:12px">&#128221; '+esc(note)+'</span>':'');
+      showSection('scan-success');
+    })
+    .catch(function(){ toast('Ошибка записи',false); });
+}
+
+// ═══════════════════════════════════════════
+// CUSTOM PRICE
+// ═══════════════════════════════════════════
+function openCustomPrice() { pinTarget='__custprice__'; openPinModal(); }
+function _showCustomPrice() {
+  if (!curProduct) return;
+  document.getElementById('cp-standard').textContent=fmt(curProduct.sale);
+  document.getElementById('cp-price').value='';
+  document.getElementById('cp-preview').style.display='none';
+  openModal('modal-custprice');
+  setTimeout(function(){ document.getElementById('cp-price').focus(); },200);
+}
+function previewCustom() {
+  if (!curProduct) return;
+  var price=parseFloat(document.getElementById('cp-price').value);
+  var pp=document.getElementById('cp-preview');
+  if (isNaN(price)||price<=0){ pp.style.display='none'; return; }
+  var profit=Math.round((price-curProduct.cost)*100)/100;
+  var el=document.getElementById('cp-profit');
+  el.textContent=(profit>=0?'+':'')+fmt(profit);
+  el.style.color=profit>=0?'var(--green)':'var(--red)';
+  pp.style.display='block';
+}
+
+// ═══════════════════════════════════════════
+// WRITEOFF
+// ═══════════════════════════════════════════
+function openWriteoff() {
+  if (!curProduct) return;
+  window._wop=curProduct; pinTarget='__writeoff__'; openPinModal();
+}
+function doWriteoff() {
+  var p=window._wop; if (!p) return;
+  var fresh=getProduct(p.id);
+  if (!fresh||fresh.quantity<=0){ toast('Товар закончился!',false); return; }
+  var reason=document.getElementById('wo-reason').value.trim()||'Без причины';
+  var wo={id:'WO-'+Date.now().toString(36).toUpperCase(),productId:fresh.id,name:fresh.name,reason:reason,ts:new Date().toISOString()};
+  var batch=db.batch();
+  batch.update(db.collection('products').doc(fresh.id),{quantity:fresh.quantity-1});
+  batch.set(db.collection('writeoffs').doc(wo.id),wo);
+  batch.commit()
+    .then(function(){
+      closeModal('modal-writeoff'); curProduct=null; window._wop=null;
+      document.getElementById('suc-info').innerHTML='&#128465; Списано: '+esc(fresh.name);
+      showSection('scan-success');
+    })
+    .catch(function(){ toast('Ошибка',false); });
+}
+
+// ═══════════════════════════════════════════
+// PRODUCTS CRUD
+// ═══════════════════════════════════════════
+function openAddProduct() {
+  editId=null;
+  document.getElementById('mp-title').textContent='НОВЫЙ ТОВАР';
+  document.getElementById('mp-save-btn').textContent='ДОБАВИТЬ';
+  ['f-name','f-qty','f-cost'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('price-preview').style.display='none';
+  openModal('modal-product');
+  setTimeout(function(){ document.getElementById('f-name').focus(); },200);
+}
+function openEditProduct(id) {
+  var p=getProduct(id); if (!p) return;
+  editId=id;
+  document.getElementById('mp-title').textContent='РЕДАКТИРОВАТЬ';
+  document.getElementById('mp-save-btn').textContent='СОХРАНИТЬ';
+  document.getElementById('f-name').value=p.name;
+  document.getElementById('f-qty').value=p.quantity;
+  document.getElementById('f-cost').value=p.cost;
+  previewPrice(); openModal('modal-product');
+}
+function previewPrice() {
+  var cost=parseFloat(document.getElementById('f-cost').value);
+  var pp=document.getElementById('price-preview');
+  if (isNaN(cost)||cost<=0){ pp.style.display='none'; return; }
+  var sale=calcSale(cost);
+  document.getElementById('prev-sale').textContent=fmt(sale);
+  document.getElementById('prev-profit').textContent='+'+fmt(sale-cost);
+  pp.style.display='block';
+}
+function saveProduct() {
+  var name=document.getElementById('f-name').value.trim();
+  var qty=parseInt(document.getElementById('f-qty').value);
+  var cost=parseFloat(document.getElementById('f-cost').value);
+  if (!name){ toast('Введите название',false); return; }
+  if (isNaN(qty)||qty<0){ toast('Введите количество',false); return; }
+  if (isNaN(cost)||cost<=0){ toast('Введите цену закупки',false); return; }
+  var prod={id:editId||newId(),name:name,quantity:qty,cost:cost,sale:calcSale(cost)};
+  db.collection('products').doc(prod.id).set(prod)
+    .then(function(){ closeModal('modal-product'); toast(editId?'Обновлено':'Добавлено'); })
+    .catch(function(){ toast('Ошибка',false); });
+}
+function deleteProduct(id) {
+  if (!confirm('Удалить товар?')) return;
+  db.collection('products').doc(id).delete()
+    .then(function(){ toast('Удалено'); })
+    .catch(function(){ toast('Ошибка',false); });
+}
+
+// ═══════════════════════════════════════════
+// QR
+// ═══════════════════════════════════════════
+function showQR(id) {
+  var p=getProduct(id); if (!p) return;
+  curQRP=p;
+  document.getElementById('qr-id').textContent=p.id;
+  document.getElementById('qr-name').textContent=p.name;
+  document.getElementById('qr-price').textContent=fmt(p.sale);
+  var container=document.getElementById('qr-render');
+  container.innerHTML='';
+  if (window.QRCode) {
+    try { new QRCode(container,{text:p.id,width:200,height:200,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M}); }
+    catch(e){ container.innerHTML='<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(p.id)+'&margin=2" width="200" height="200">'; }
+  } else {
+    container.innerHTML='<div style="color:var(--muted);padding:40px;font-size:12px">Загрузка...</div>';
+    setTimeout(function(){ showQR(id); },700); return;
   }
   openModal('modal-qr');
 }
-
 function getQRCanvas() {
-  var canvas = document.querySelector('#qr-render canvas');
-  if (canvas) return canvas;
-  var img = document.querySelector('#qr-render img');
-  if (img) {
-    var c = document.createElement('canvas');
-    c.width = 200; c.height = 200;
-    c.getContext('2d').drawImage(img, 0, 0, 200, 200);
-    return c;
-  }
+  var c=document.querySelector('#qr-render canvas'); if (c) return c;
+  var img=document.querySelector('#qr-render img');
+  if (img){ var cv=document.createElement('canvas'); cv.width=200; cv.height=200; cv.getContext('2d').drawImage(img,0,0,200,200); return cv; }
   return null;
 }
-
 function shareQR() {
   if (!curQRP) return;
-  var canvas = getQRCanvas();
-  if (!canvas) { toast('QR ещё не готов', false); return; }
-  canvas.toBlob(function(blob) {
-    var file = new File([blob], curQRP.id + '.png', { type: 'image/png' });
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: curQRP.name, text: curQRP.name + ' — ' + fmt(curQRP.sale) })
-        .catch(function(){});
-    } else {
-      downloadQR();
-    }
-  }, 'image/png');
+  var canvas=getQRCanvas(); if (!canvas){ toast('QR не готов',false); return; }
+  canvas.toBlob(function(blob){
+    var file=new File([blob],curQRP.id+'.png',{type:'image/png'});
+    if (navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})) {
+      navigator.share({files:[file],title:curQRP.name,text:curQRP.name+' — '+fmt(curQRP.sale)}).catch(function(){});
+    } else downloadQR();
+  },'image/png');
 }
-
 function downloadQR() {
   if (!curQRP) return;
-  var canvas = getQRCanvas();
-  if (!canvas) { toast('QR ещё не готов', false); return; }
-  var a = document.createElement('a');
-  a.href     = canvas.toDataURL('image/png');
-  a.download = curQRP.id + '.png';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  var canvas=getQRCanvas(); if (!canvas){ toast('QR не готов',false); return; }
+  var a=document.createElement('a'); a.href=canvas.toDataURL('image/png'); a.download=curQRP.id+'.png';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   toast('QR скачан!');
 }
 
-// ── Рендер: Товары ─────────────────────────────────────
+// ═══════════════════════════════════════════
+// EXPENSES CRUD
+// ═══════════════════════════════════════════
+function openAddExpense() {
+  editExpId=null;
+  document.getElementById('exp-title').textContent='НОВЫЙ РАСХОД';
+  document.getElementById('exp-save-btn').textContent='ДОБАВИТЬ';
+  document.getElementById('e-name').value='';
+  document.getElementById('e-amount').value='';
+  document.getElementById('e-date').value=new Date().toISOString().slice(0,10);
+  openModal('modal-expense');
+  setTimeout(function(){ document.getElementById('e-name').focus(); },200);
+}
+function openEditExpense(id) {
+  var e=ST.expenses.find(function(x){ return x.id===id; }); if (!e) return;
+  editExpId=id;
+  document.getElementById('exp-title').textContent='РЕДАКТИРОВАТЬ';
+  document.getElementById('exp-save-btn').textContent='СОХРАНИТЬ';
+  document.getElementById('e-name').value=e.name;
+  document.getElementById('e-amount').value=e.amount;
+  document.getElementById('e-date').value=e.date;
+  openModal('modal-expense');
+}
+function saveExpense() {
+  var name=document.getElementById('e-name').value.trim();
+  var amount=parseFloat(document.getElementById('e-amount').value);
+  var date=document.getElementById('e-date').value;
+  if (!name){ toast('Введите название',false); return; }
+  if (isNaN(amount)||amount<=0){ toast('Введите сумму',false); return; }
+  if (!date){ toast('Выберите дату',false); return; }
+  var exp={id:editExpId||expUid(),name:name,amount:amount,date:date,ts:new Date().toISOString()};
+  db.collection('expenses').doc(exp.id).set(exp)
+    .then(function(){ closeModal('modal-expense'); toast(editExpId?'Расход обновлён':'Расход добавлен'); })
+    .catch(function(){ toast('Ошибка',false); });
+}
+function deleteExpense(id) {
+  if (!confirm('Удалить расход?')) return;
+  db.collection('expenses').doc(id).delete()
+    .then(function(){ toast('Удалено'); })
+    .catch(function(){ toast('Ошибка',false); });
+}
+
+// ═══════════════════════════════════════════
+// RENDER: PRODUCTS
+// ═══════════════════════════════════════════
 function renderProducts() {
-  var el = document.getElementById('products-list');
-  if (ST.products.length === 0) {
-    el.innerHTML = '<div class="empty"><div style="font-size:3em;margin-bottom:12px">&#128230;</div><div>Нет товаров</div><div style="font-size:13px;margin-top:6px">Нажмите «+ Товар» чтобы добавить</div></div>';
+  var el=document.getElementById('products-list');
+  if (ST.products.length===0) {
+    el.innerHTML='<div class="empty"><div style="font-size:2.5em;margin-bottom:10px">&#128230;</div><div>Нет товаров</div><div style="font-size:12px;margin-top:5px">Нажмите «+ Товар»</div></div>';
     return;
   }
-  el.innerHTML = ST.products.map(function(p) {
-    var cls = p.quantity === 0 ? 'out' : p.quantity <= 3 ? 'low' : '';
-    var sc  = p.quantity === 0 ? 'var(--red)' : p.quantity <= 3 ? 'var(--warn)' : 'var(--green)';
-    var st  = p.quantity === 0 ? '&#9888; НЕТ' : p.quantity + ' шт.';
-    return '<div class="p-item ' + cls + '">'
-      + '<div class="p-hdr">'
-        + '<div><div class="p-name">' + esc(p.name) + '</div><div class="p-id">' + esc(p.id) + '</div></div>'
-        + '<div style="font-size:12px;font-weight:700;color:' + sc + '">' + st + '</div>'
-      + '</div>'
-      + '<div class="p-grid">'
-        + '<div class="p-chip"><div class="chip-lbl">ЗАКУПКА</div><div class="chip-val">' + fmt(p.cost) + '</div></div>'
-        + '<div class="p-chip gold"><div class="chip-lbl g">ПРОДАЖА</div><div class="chip-val g">' + fmt(p.sale) + '</div></div>'
-      + '</div>'
-      + '<div class="p-acts">'
-        + '<button class="p-act" onclick="showQR(\'' + p.id + '\')">QR-код</button>'
-        + '<button class="p-act" onclick="openEditProduct(\'' + p.id + '\')">Редактировать</button>'
-        + '<button class="p-act del" onclick="deleteProduct(\'' + p.id + '\')">&times;</button>'
-      + '</div>'
-    + '</div>';
+  el.innerHTML=ST.products.map(function(p){
+    var cls=p.quantity===0?'out':p.quantity<=3?'low':'';
+    var sc=p.quantity===0?'var(--red)':p.quantity<=3?'var(--warn)':'var(--green)';
+    var st=p.quantity===0?'&#9888; НЕТ':p.quantity+' шт.';
+    return '<div class="p-item '+cls+'">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px">'
+        +'<div><div style="font-weight:600;font-size:14px;margin-bottom:2px">'+esc(p.name)+'</div>'
+        +'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:var(--muted)">'+esc(p.id)+'</div></div>'
+        +'<div style="font-size:11px;font-weight:700;color:'+sc+';flex-shrink:0;margin-left:7px">'+st+'</div>'
+      +'</div>'
+      +'<div class="p-grid">'
+        +'<div class="p-chip"><div class="chip-lbl">ЗАКУПКА</div><div class="chip-val">'+fmt(p.cost)+'</div></div>'
+        +'<div class="p-chip gold"><div class="chip-lbl g">ПРОДАЖА</div><div class="chip-val g">'+fmt(p.sale)+'</div></div>'
+      +'</div>'
+      +'<div class="p-acts">'
+        +'<button class="p-act" onclick="showQR(\''+p.id+'\')">QR-код</button>'
+        +'<button class="p-act" onclick="openEditProduct(\''+p.id+'\')">Редактировать</button>'
+        +'<button class="p-act del" onclick="deleteProduct(\''+p.id+'\')">&#215;</button>'
+      +'</div>'
+    +'</div>';
   }).join('');
 }
 
-// ── Рендер: Аналитика ──────────────────────────────────
-function renderAnalytics() {
-  var atab = window._atab || 'all';
-  var now  = new Date();
-
-  // Фильтруем продажи по вкладке
-  var allSales = ST.sales;
-  var s;
-  if (atab === 'today') {
-    var todayStr = now.toISOString().slice(0, 10);
-    s = allSales.filter(function(x){ return x.ts.slice(0,10) === todayStr; });
-    document.getElementById('analytics-section-title').textContent = 'Продажи сегодня';
-  } else if (atab === 'month') {
-    s = filterByMonth();
-    var sel = document.getElementById('month-select');
-    var label = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'Месяц';
-    document.getElementById('analytics-section-title').textContent = 'Продажи — ' + label;
-  } else {
-    s = allSales;
-    document.getElementById('analytics-section-title').textContent = 'История продаж';
-  }
-
-  var p = ST.products;
-  var cnt         = s.length;
-  var revenue     = s.reduce(function(a,x){ return a + x.sale; }, 0);
-  var barberSales = s.filter(function(x){ return x.saleType === 'barber'; });
-  var barberCnt   = barberSales.length;
-  var barberComm  = Math.round(barberSales.reduce(function(a,x){ return a + (x.barberCommission || 1); }, 0) * 100) / 100;
-  var netProfit   = Math.round(s.reduce(function(a,x){ return a + (x.netProfit !== undefined ? x.netProfit : x.profit); }, 0) * 100) / 100;
-  var invValue    = p.reduce(function(a,x){ return a + x.cost * x.quantity; }, 0);
-  var outArr      = p.filter(function(x){ return x.quantity === 0; });
-  var lowArr      = p.filter(function(x){ return x.quantity > 0 && x.quantity <= 3; });
-
-  // Статистика
-  document.getElementById('stats-grid').innerHTML =
-      '<div class="scard"><div class="slbl">Продаж</div><div class="sval" style="color:var(--gold)">' + cnt + '</div><div class="ssub">транзакций</div></div>'
-    + '<div class="scard"><div class="slbl">Выручка</div><div class="sval">' + fmt(revenue) + '</div><div class="ssub">от продаж</div></div>'
-    + '<div class="scard"><div class="slbl">Наша прибыль</div><div class="sval" style="color:var(--green)">' + fmt(netProfit) + '</div><div class="ssub">после комиссий</div></div>'
-    + '<div class="scard"><div class="slbl">Склад</div><div class="sval" style="color:var(--muted)">' + fmt(invValue) + '</div><div class="ssub">закупочная</div></div>';
-
-  // Алерты
-  var alerts = '';
-  if (barberCnt > 0) {
-    alerts += '<div style="background:rgba(201,168,76,.08);border:1px solid var(--gold);border-radius:10px;padding:14px 16px;margin-bottom:12px">'
-      + '<div style="font-size:10px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">&#9988; Продажи от Барбера</div>'
-      + '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted);font-size:13px">Продаж через барбера:</span><span style="font-family:\'IBM Plex Mono\',monospace;color:var(--gold)">' + barberCnt + ' шт.</span></div>'
-      + '<div style="display:flex;justify-content:space-between"><span style="color:var(--muted);font-size:13px">К выплате барберу:</span><span style="font-family:\'IBM Plex Mono\',monospace;font-size:16px;font-weight:600;color:var(--warn)">' + fmt(barberComm) + '</span></div>'
-      + '</div>';
-  }
-  if (outArr.length > 0) alerts += '<div class="alert alert-red">Закончилось: ' + outArr.map(function(x){ return esc(x.name); }).join(', ') + '</div>';
-  if (lowArr.length > 0) alerts += '<div class="alert alert-warn">Заканчивается (&le;3 шт.): ' + lowArr.map(function(x){ return esc(x.name); }).join(', ') + '</div>';
-  document.getElementById('alerts-area').innerHTML = alerts;
-
-  // История
-  if (s.length === 0) {
-    document.getElementById('sales-list').innerHTML = '<div class="empty"><div style="font-size:2.5em;margin-bottom:10px">&#128202;</div><div>Продаж нет за этот период</div></div>';
+// ═══════════════════════════════════════════
+// RENDER: EXPENSES
+// ═══════════════════════════════════════════
+function renderExpenses() {
+  var totalExp=ST.expenses.reduce(function(a,x){ return a+x.amount; },0);
+  document.getElementById('exp-summary').innerHTML=
+    '<div class="scard" style="margin-bottom:0">'
+    +'<div class="slbl">Всего расходов</div>'
+    +'<div class="sval" style="color:var(--red)">'+fmt(totalExp)+'</div>'
+    +'<div class="ssub">за всё время</div>'
+    +'</div>';
+  var el=document.getElementById('exp-list');
+  if (ST.expenses.length===0) {
+    el.innerHTML='<div class="empty"><div style="font-size:2.5em;margin-bottom:10px">&#128176;</div><div>Нет расходов</div><div style="font-size:12px;margin-top:5px">Нажмите «+ Расход»</div></div>';
     return;
   }
-  document.getElementById('sales-list').innerHTML = s.map(function(x) {
-    var isBarber  = (x.saleType === 'barber');
-    var isCustom  = x.customPrice;
-    var badge     = isBarber ? '<span style="font-size:10px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4);border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:700">&#9988; Барбер</span>' : '';
-    var custBadge = isCustom ? '<span style="font-size:10px;background:rgba(61,158,106,.12);color:var(--green);border:1px solid rgba(61,158,106,.4);border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:700">&#9998; цена</span>' : '';
-    var commLine  = isBarber ? '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:var(--warn)">-1.00 € барберу</div>' : '';
-    return '<div class="sale-item">'
-      + '<div><div style="font-weight:600;font-size:14px;margin-bottom:3px">' + esc(x.name) + badge + custBadge + '</div>'
-      + '<div style="color:var(--muted);font-size:12px">' + fmtDate(x.ts) + '</div></div>'
-      + '<div style="text-align:right"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:15px;color:var(--gold)">' + fmt(x.sale) + '</div>' + commLine + '</div>'
-    + '</div>';
+  el.innerHTML=ST.expenses.map(function(e){
+    return '<div class="exp-item">'
+      +'<div><div style="font-weight:600;font-size:14px;margin-bottom:2px">'+esc(e.name)+'</div>'
+      +'<div style="color:var(--muted);font-size:12px">'+e.date+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:8px">'
+        +'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:15px;color:var(--red)">'+fmt(e.amount)+'</span>'
+        +'<button onclick="openEditExpense(\''+e.id+'\')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px">&#9998;</button>'
+        +'<button onclick="deleteExpense(\''+e.id+'\')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:17px">&#215;</button>'
+      +'</div>'
+    +'</div>';
   }).join('');
 }
 
-// ── Вкладки аналитики ──────────────────────────────────
-function switchAtab(tab) {
-  window._atab = tab;
+// ═══════════════════════════════════════════
+// ANALYTICS TABS
+// ═══════════════════════════════════════════
+function setAtab(tab) {
+  curAtab=tab;
   document.querySelectorAll('.atab').forEach(function(b){ b.classList.remove('active'); });
-  document.getElementById('atab-' + tab).classList.add('active');
-
-  var mp = document.getElementById('month-picker');
-  if (tab === 'month') {
-    mp.style.display = 'block';
-    buildMonthOptions();
-  } else {
-    mp.style.display = 'none';
-  }
+  document.getElementById('atab-'+tab).classList.add('active');
+  document.getElementById('month-picker').style.display=tab==='month'?'block':'none';
+  if (tab==='month') buildMonthOptions();
   renderAnalytics();
 }
-
 function buildMonthOptions() {
-  var sel = document.getElementById('month-select');
-  var months = {};
-  ST.sales.forEach(function(x) {
-    var key = x.ts.slice(0, 7); // "2025-04"
-    months[key] = true;
-  });
-  // Always include current month
-  var now = new Date();
-  var cur = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-  months[cur] = true;
-
-  var keys = Object.keys(months).sort().reverse();
-  var MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-  var current = sel.value;
-  sel.innerHTML = keys.map(function(k) {
-    var parts = k.split('-');
-    var label = MONTH_NAMES[parseInt(parts[1],10)-1] + ' ' + parts[0];
-    return '<option value="' + k + '"' + (k === current ? ' selected' : '') + '>' + label + '</option>';
+  var sel=document.getElementById('month-select');
+  var months={}; ST.sales.forEach(function(x){ months[x.ts.slice(0,7)]=true; });
+  months[thisMonth()]=true;
+  var keys=Object.keys(months).sort().reverse();
+  var MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  var prev=sel.value;
+  sel.innerHTML=keys.map(function(k){
+    var p=k.split('-');
+    return '<option value="'+k+'"'+(k===prev?' selected':'')+'>'+MN[parseInt(p[1],10)-1]+' '+p[0]+'</option>';
   }).join('');
-  if (!sel.value) sel.value = keys[0];
+  if (!sel.value&&keys.length) sel.value=keys[0];
+}
+function getFilteredSales() {
+  var s=ST.sales;
+  if (curAtab==='today') { var td=todayStr(); return s.filter(function(x){ return x.ts.slice(0,10)===td; }); }
+  if (curAtab==='month') { var key=document.getElementById('month-select').value; return key?s.filter(function(x){ return x.ts.slice(0,7)===key; }):s; }
+  return s;
 }
 
-function filterByMonth() {
-  var sel = document.getElementById('month-select');
-  var key = sel ? sel.value : '';
-  if (!key) return ST.sales;
-  return ST.sales.filter(function(x){ return x.ts.slice(0,7) === key; });
+// ═══════════════════════════════════════════
+// RENDER: ANALYTICS
+// ═══════════════════════════════════════════
+function renderAnalytics() {
+  var s=getFilteredSales(), p=ST.products;
+  var titles={all:'История продаж',today:'Продажи сегодня',month:'Продажи за месяц'};
+  document.getElementById('sales-title').textContent=titles[curAtab]||'История продаж';
+
+  var cnt=s.length;
+  var revenue=s.reduce(function(a,x){ return a+x.sale; },0);
+  var barberS=s.filter(function(x){ return x.saleType==='barber'; });
+  var barberC=Math.round(barberS.reduce(function(a,x){ return a+(x.barberCommission||1); },0)*100)/100;
+  var netProfit=Math.round(s.reduce(function(a,x){ return a+(x.netProfit!==undefined?x.netProfit:x.profit); },0)*100)/100;
+  var totalExp=ST.expenses.reduce(function(a,x){ return a+x.amount; },0);
+  var realProfit=Math.round((netProfit-totalExp)*100)/100;
+  var outArr=p.filter(function(x){ return x.quantity===0; });
+  var lowArr=p.filter(function(x){ return x.quantity>0&&x.quantity<=3; });
+
+  // Статы
+  document.getElementById('stats-grid').innerHTML=
+      '<div class="scard"><div class="slbl">Продаж</div><div class="sval" style="color:var(--gold)">'+cnt+'</div><div class="ssub">транзакций</div></div>'
+    + '<div class="scard"><div class="slbl">Выручка</div><div class="sval">'+fmt(revenue)+'</div><div class="ssub">от продаж</div></div>'
+    + '<div class="scard"><div class="slbl">Прибыль</div><div class="sval" style="color:var(--green)">'+fmt(netProfit)+'</div><div class="ssub">до расходов</div></div>'
+    + '<div class="scard"><div class="slbl">Чистая</div><div class="sval" style="color:'+(realProfit>=0?'var(--green)':'var(--red)')+'">'+fmt(realProfit)+'</div><div class="ssub">за вычетом расходов</div></div>';
+
+  // График продаж
+  renderChart(s);
+
+  // Сравнение месяцев (только во вкладке "Месяц")
+  if (curAtab==='month') { renderComparison(); document.getElementById('cmp-wrap').style.display='block'; }
+  else document.getElementById('cmp-wrap').style.display='none';
+
+  // Топ товаров
+  renderTopProducts();
+
+  // Алерты
+  var alerts='';
+  if (barberS.length>0) {
+    alerts+='<div style="background:rgba(201,168,76,.08);border:1px solid var(--gold);border-radius:10px;padding:13px 14px;margin-bottom:11px">'
+      +'<div style="font-size:9px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:9px">&#9988; Продажи от Барбера</div>'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--muted);font-size:13px">Продаж:</span><span style="font-size:13px;color:var(--gold)">'+barberS.length+' шт.</span></div>'
+      +'<div style="display:flex;justify-content:space-between"><span style="color:var(--muted);font-size:13px">К выплате барберу:</span><span style="font-size:15px;font-weight:600;color:var(--warn)">'+fmt(barberC)+'</span></div>'
+      +'</div>';
+  }
+  if (totalExp>0) {
+    alerts+='<div style="background:rgba(201,64,64,.06);border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:11px">'
+      +'<div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:9px">&#128176; Расходы</div>'
+      +'<div style="display:flex;justify-content:space-between"><span style="color:var(--muted);font-size:13px">Всего расходов:</span><span style="font-size:15px;font-weight:600;color:var(--red)">'+fmt(totalExp)+'</span></div>'
+      +'</div>';
+  }
+  if (outArr.length>0) alerts+='<div class="alert alert-red">Закончилось: '+outArr.map(function(x){return esc(x.name);}).join(', ')+'</div>';
+  if (lowArr.length>0) alerts+='<div class="alert alert-warn">Заканчивается (&le;3): '+lowArr.map(function(x){return esc(x.name);}).join(', ')+'</div>';
+  document.getElementById('alerts-area').innerHTML=alerts;
+
+  // История
+  if (s.length===0) {
+    document.getElementById('sales-list').innerHTML='<div class="empty"><div style="font-size:2em;margin-bottom:9px">&#128202;</div><div>Продаж нет</div></div>';
+    return;
+  }
+  document.getElementById('sales-list').innerHTML=s.map(function(x){
+    var isB=x.saleType==='barber';
+    var badge=isB?'<span style="font-size:9px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4);border-radius:4px;padding:1px 5px;margin-left:4px;font-weight:700">&#9988;</span>':'';
+    var cust=x.customPrice?'<span style="font-size:9px;background:rgba(61,158,106,.12);color:var(--green);border:1px solid rgba(61,158,106,.4);border-radius:4px;padding:1px 4px;margin-left:3px">&#9998;</span>':'';
+    var comm=isB?'<div style="font-size:10px;color:var(--warn)">-1.00 \u20AC барберу</div>':'';
+    var noteEl=x.note?'<div style="font-size:10px;color:var(--muted);margin-top:2px">&#128221; '+esc(x.note)+'</div>':'';
+    return '<div class="sale-item">'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:13px;margin-bottom:2px">'+esc(x.name)+badge+cust+'</div>'
+      +'<div style="color:var(--muted);font-size:11px">'+fmtDate(x.ts)+'</div>'+noteEl+'</div>'
+      +'<div style="text-align:right;flex-shrink:0;margin-left:8px"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:14px;color:var(--gold)">'+fmt(x.sale)+'</div>'+comm+'</div>'
+    +'</div>';
+  }).join('');
 }
 
-// ── Бейдж "нет в наличии" ──────────────────────────────
+// ═══════════════════════════════════════════
+// CHART: продажи по дням
+// ═══════════════════════════════════════════
+function renderChart(sales) {
+  var days=[];
+  var today=new Date();
+  for (var i=13;i>=0;i--) {
+    var d=new Date(today); d.setDate(d.getDate()-i);
+    var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    days.push({key:key,label:d.getDate()+'.'+String(d.getMonth()+1).padStart(2,'0'),rev:0,cnt:0});
+  }
+  sales.forEach(function(x){
+    var dk=x.ts.slice(0,10);
+    for (var i=0;i<days.length;i++) if (days[i].key===dk){ days[i].rev+=x.sale; days[i].cnt++; }
+  });
+  var maxRev=Math.max.apply(null,days.map(function(d){return d.rev;}));
+  if (maxRev===0) maxRev=1;
+  var W=Math.max(320,days.length*26);
+  var svg='<svg width="'+W+'" height="120" viewBox="0 0 '+W+' 120" xmlns="http://www.w3.org/2000/svg" style="display:block">';
+  var barW=18, gap=Math.floor((W-days.length*barW)/(days.length+1));
+  days.forEach(function(d,i){
+    var x=gap+(i*(barW+gap));
+    var barH=Math.round((d.rev/maxRev)*70);
+    var y=80-barH;
+    var isToday=d.key===todayStr();
+    var col=isToday?'#C9A84C':(d.rev>0?'#2E4A3A':'#282828');
+    var border=isToday?'#C9A84C':'#2E2E2E';
+    svg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+Math.max(barH,4)+'" rx="3" fill="'+col+'" stroke="'+border+'" stroke-width="1"/>';
+    if (d.cnt>0) svg+='<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9" fill="#C9A84C" font-family="monospace">'+d.cnt+'</text>';
+    svg+='<text x="'+(x+barW/2)+'" y="100" text-anchor="middle" font-size="8" fill="'+(isToday?'#C9A84C':'#666')+'" font-family="monospace">'+d.label+'</text>';
+  });
+  svg+='</svg>';
+  document.getElementById('chart-area').innerHTML='<div style="overflow-x:auto">'+svg+'</div>'
+    +'<div style="font-size:10px;color:var(--muted);margin-top:8px">Цифра над столбцом — количество продаж. Выделен сегодняшний день.</div>';
+}
+
+// ═══════════════════════════════════════════
+// COMPARISON: месяц vs прошлый месяц
+// ═══════════════════════════════════════════
+function renderComparison() {
+  var curKey=document.getElementById('month-select').value||thisMonth();
+  var parts=curKey.split('-'); var m=parseInt(parts[1],10)-2; var y=parseInt(parts[0],10);
+  if (m<0){ m=11; y--; }
+  var prevKey=y+'-'+String(m+1).padStart(2,'0');
+  var MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  var curParts=curKey.split('-'); var prevParts=prevKey.split('-');
+  var curLabel=MN[parseInt(curParts[1],10)-1]+' '+curParts[0];
+  var prevLabel=MN[parseInt(prevParts[1],10)-1]+' '+prevParts[0];
+  var curS=ST.sales.filter(function(x){ return x.ts.slice(0,7)===curKey; });
+  var prevS=ST.sales.filter(function(x){ return x.ts.slice(0,7)===prevKey; });
+  function stats(s){ return {cnt:s.length,rev:s.reduce(function(a,x){return a+x.sale;},0),profit:s.reduce(function(a,x){return a+(x.netProfit!==undefined?x.netProfit:x.profit);},0)}; }
+  var cs=stats(curS), ps=stats(prevS);
+  function diff(cur,prev){ if (prev===0) return cur>0?'+100%':'—'; var d=Math.round((cur-prev)/prev*100); return (d>=0?'+':'')+d+'%'; }
+  function diffCol(cur,prev){ return cur>=prev?'var(--green)':'var(--red)'; }
+  document.getElementById('cmp-area').innerHTML=
+    '<div style="display:flex;justify-content:space-between;margin-bottom:10px">'
+      +'<div></div><div style="font-size:10px;color:var(--muted);font-weight:700">'+prevLabel+'</div>'
+      +'<div style="font-size:10px;color:var(--gold);font-weight:700">'+curLabel+'</div>'
+    +'</div>'
+    +row('Продаж',cs.cnt,ps.cnt,diff(cs.cnt,ps.cnt),diffCol(cs.cnt,ps.cnt))
+    +row('Выручка',fmt(cs.rev),fmt(ps.rev),diff(cs.rev,ps.rev),diffCol(cs.rev,ps.rev))
+    +row('Прибыль',fmt(cs.profit),fmt(ps.profit),diff(cs.profit,ps.profit),diffCol(cs.profit,ps.profit));
+  function row(label,cur,prev,d,col){
+    return '<div class="cmp-row"><span style="color:var(--muted);font-size:13px">'+label+'</span>'
+      +'<div style="display:flex;gap:14px;align-items:center">'
+      +'<span style="font-size:12px;color:var(--muted);font-family:\'IBM Plex Mono\',monospace">'+prev+'</span>'
+      +'<span style="font-size:13px;font-family:\'IBM Plex Mono\',monospace">'+cur+'</span>'
+      +'<span style="font-size:11px;font-weight:700;color:'+col+';min-width:40px;text-align:right">'+d+'</span>'
+      +'</div></div>';
+  }
+}
+
+// ═══════════════════════════════════════════
+// TOP PRODUCTS
+// ═══════════════════════════════════════════
+function renderTopProducts() {
+  var s=getFilteredSales();
+  var counts={};
+  s.forEach(function(x){ if (!counts[x.name]) counts[x.name]={cnt:0,rev:0}; counts[x.name].cnt++; counts[x.name].rev+=x.sale; });
+  var arr=Object.keys(counts).map(function(k){ return {name:k,cnt:counts[k].cnt,rev:counts[k].rev}; });
+  arr.sort(function(a,b){ return b.cnt-a.cnt; });
+  var top=arr.slice(0,5);
+  if (top.length===0) { document.getElementById('top-area').innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px">Нет данных</div>'; return; }
+  document.getElementById('top-area').innerHTML=top.map(function(item,i){
+    var rc=['r1','r2','r3','',''][i]||'';
+    return '<div class="top-item">'
+      +'<span class="top-rank '+rc+'">'+(i+1)+'</span>'
+      +'<div style="flex:1"><div style="font-size:13px;font-weight:600">'+esc(item.name)+'</div>'
+      +'<div style="font-size:11px;color:var(--muted)">'+item.cnt+' продаж</div></div>'
+      +'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;color:var(--gold)">'+fmt(item.rev)+'</span>'
+    +'</div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// EXPORT CSV (открывается в Excel)
+// ═══════════════════════════════════════════
+function exportCSV() {
+  var s=getFilteredSales();
+  if (s.length===0){ toast('Нет данных для экспорта',false); return; }
+  var bom='\uFEFF';
+  var header='Дата;Товар;Цена продажи;Себестоимость;Прибыль;Тип;Заметка\n';
+  var rows=s.map(function(x){
+    return fmtDate(x.ts)+';'
+      +'"'+x.name.replace(/"/g,'""')+'";'
+      +x.sale.toFixed(2)+';'
+      +x.cost.toFixed(2)+';'
+      +(x.netProfit!==undefined?x.netProfit:x.profit).toFixed(2)+';'
+      +(x.saleType==='barber'?'Барбер':'Обычная')+';'
+      +'"'+(x.note||'').replace(/"/g,'""')+'"';
+  }).join('\n');
+
+  // Расходы
+  var expHeader='\n\nРАСХОДЫ\nДата;Название;Сумма\n';
+  var expRows=ST.expenses.map(function(e){
+    return e.date+';'
+      +'"'+e.name.replace(/"/g,'""')+'";'
+      +e.amount.toFixed(2);
+  }).join('\n');
+
+  var csv=bom+header+rows+expHeader+expRows;
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var label={'all':'все_продажи','today':'сегодня','month':document.getElementById('month-select').value||thisMonth()}[curAtab];
+  a.href=url; a.download='HubSales_'+label+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Отчёт скачан!');
+}
+
+// ═══════════════════════════════════════════
+// BADGE
+// ═══════════════════════════════════════════
 function updateBadge() {
-  var n = ST.products.filter(function(p){ return p.quantity === 0; }).length;
-  var b = document.getElementById('out-badge');
-  b.style.display = n > 0 ? 'block' : 'none';
-  b.textContent   = n;
+  var n=ST.products.filter(function(p){return p.quantity===0;}).length;
+  var b=document.getElementById('out-badge');
+  b.style.display=n>0?'block':'none'; b.textContent=n;
 }
 
-// ── Предотвратить зум по двойному тапу ─────────────────
-var lastTap = 0;
-document.addEventListener('touchend', function(e) {
-  var now = Date.now();
-  if (now - lastTap < 300) e.preventDefault();
-  lastTap = now;
-}, { passive: false });
+// ═══════════════════════════════════════════
+// PREVENT DOUBLE-TAP ZOOM
+// ═══════════════════════════════════════════
+var _lt=0;
+document.addEventListener('touchend',function(e){var n=Date.now();if(n-_lt<300)e.preventDefault();_lt=n;},{passive:false});
 
-// ── СТАРТ ──────────────────────────────────────────────
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
 initFirebase();
 </script>
 </body>
